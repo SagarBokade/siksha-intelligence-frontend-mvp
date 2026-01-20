@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
@@ -15,11 +15,13 @@ import { Button } from '@/components/ui/button';
 import { SidebarSubjects } from './SidebarSubjects';
 import { SidebarTeachers } from './SidebarTeachers';
 import { TimetableGrid } from './TimetableGrid';
+import { AutoGenerateModal } from './AutoGenerateModal';
 import { setSubjectToCell, setTeacherToCell, resetGrid } from '../store/timetableSlice';
+import { generateTimetable } from '../services/autoGenerateService';
+import { initialSubjects, initialTeachers } from '../data/mockData';
 import type { RootState } from '@/store/store';
-import type { Subject, Teacher } from '../types';
-import { ArrowLeft, Save, Send, RotateCcw } from 'lucide-react';
-import { useState } from 'react';
+import type { Subject, Teacher, LLMTeacher, GeneratedTimetable } from '../types';
+import { ArrowLeft, Save, Send, RotateCcw, Sparkles } from 'lucide-react';
 
 export function TimetableEditor() {
     const navigate = useNavigate();
@@ -28,6 +30,11 @@ export function TimetableEditor() {
         (state: RootState) => state.timetable
     );
     const [activeDragItem, setActiveDragItem] = useState<{ type: string; item: Subject | Teacher } | null>(null);
+
+    // Auto Generate state
+    const [isAutoGenerateModalOpen, setIsAutoGenerateModalOpen] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [autoGenerateError, setAutoGenerateError] = useState<string | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -109,6 +116,104 @@ export function TimetableEditor() {
         }
     };
 
+    // Helper to find subject by name
+    const findSubjectByName = (name: string): Subject | undefined => {
+        return initialSubjects.find(s => s.name.toLowerCase() === name.toLowerCase());
+    };
+
+    // Helper to find teacher by name
+    const findTeacherByName = (name: string): Teacher | undefined => {
+        return initialTeachers.find(t => t.name.toLowerCase() === name.toLowerCase());
+    };
+
+    // Animate filling the grid with LLM response
+    const animateFillGrid = async (timetable: GeneratedTimetable) => {
+        const days: (keyof GeneratedTimetable)[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const timeSlots = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00'];
+
+        // First reset the grid
+        dispatch(resetGrid());
+
+        // Wait a moment for reset animation
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Iterate through each day and period with animation delay
+        for (const day of days) {
+            const periods = timetable[day];
+            if (!periods) continue;
+
+            for (const periodData of periods) {
+                const timeSlotIndex = periodData.period - 1;
+                if (timeSlotIndex < 0 || timeSlotIndex >= timeSlots.length) continue;
+
+                const timeSlot = timeSlots[timeSlotIndex];
+                const cellKey = `${day}_${timeSlot}`;
+
+                const subject = findSubjectByName(periodData.subject);
+                const teacher = findTeacherByName(periodData.teacher);
+
+                if (subject) {
+                    // First add subject with animation
+                    dispatch(setSubjectToCell({ cellKey, subject }));
+                    await new Promise(resolve => setTimeout(resolve, 100));
+
+                    if (teacher) {
+                        // Then add teacher with animation
+                        dispatch(setTeacherToCell({ cellKey, teacher }));
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                }
+            }
+        }
+    };
+
+    // Handle auto generate
+    const handleAutoGenerate = async (query: string) => {
+        setIsGenerating(true);
+        setAutoGenerateError(null);
+
+        try {
+            // Transform subjects and teachers for LLM API
+            const subjects = initialSubjects.map(s => s.name);
+            const teachers: LLMTeacher[] = initialTeachers.map(t => ({
+                name: t.name,
+                subjects: t.teachableSubjects.map(subId => {
+                    const subject = initialSubjects.find(s => s._id === subId);
+                    return subject?.name || '';
+                }).filter(Boolean),
+            }));
+
+            const response = await generateTimetable({
+                subjects,
+                teachers,
+                subjects_per_day: 6,
+                user_query: query,
+            });
+
+            if (response.success) {
+                // Close modal and animate grid filling
+                setIsAutoGenerateModalOpen(false);
+                await animateFillGrid(response.timetable);
+            } else {
+                // Show error in modal
+                if (response.error.includes('constraint') || response.error.includes('cannot be satisfied')) {
+                    setAutoGenerateError(`Timetable cannot be created with these constraints: ${response.error}. Please try with different constraints or create the timetable manually.`);
+                } else {
+                    setAutoGenerateError(response.error);
+                }
+            }
+        } catch (error) {
+            setAutoGenerateError('Cannot generate timetable due to some error. Please try again later.');
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    const openAutoGenerateModal = () => {
+        setAutoGenerateError(null);
+        setIsAutoGenerateModalOpen(true);
+    };
+
     return (
         <DndContext
             sensors={sensors}
@@ -145,6 +250,14 @@ export function TimetableEditor() {
                             </div>
 
                             <div className="flex items-center gap-2">
+                                <Button
+                                    size="sm"
+                                    onClick={openAutoGenerateModal}
+                                    className="ai-glow-button gap-2"
+                                >
+                                    <Sparkles className="w-4 h-4" />
+                                    Auto Generate
+                                </Button>
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -219,6 +332,15 @@ export function TimetableEditor() {
                         </div>
                     )}
                 </DragOverlay>
+
+                {/* Auto Generate Modal */}
+                <AutoGenerateModal
+                    open={isAutoGenerateModalOpen}
+                    onOpenChange={setIsAutoGenerateModalOpen}
+                    onGenerate={handleAutoGenerate}
+                    isGenerating={isGenerating}
+                    error={autoGenerateError}
+                />
             </div>
         </DndContext>
     );

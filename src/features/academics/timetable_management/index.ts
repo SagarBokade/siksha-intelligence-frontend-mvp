@@ -9,6 +9,10 @@ export { TimetableGrid } from './components/TimetableGrid';
 export { GridCell } from './components/GridCell';
 export { DraggableSubject } from './components/DraggableSubject';
 export { DraggableTeacher } from './components/DraggableTeacher';
+export { AutoGenerateModal } from './components/AutoGenerateModal';
+
+// Services
+export { generateTimetable } from './services/autoGenerateService';
 
 // Store
 export {
@@ -36,6 +40,13 @@ export type {
     DragData,
     Day,
     TimeSlot,
+    LLMTeacher,
+    TimetablePeriod,
+    GeneratedTimetable,
+    AutoGenerateRequest,
+    AutoGenerateSuccessResponse,
+    AutoGenerateErrorResponse,
+    AutoGenerateResponse,
 } from './types';
 
 export { DAYS, TIME_SLOTS } from './types';

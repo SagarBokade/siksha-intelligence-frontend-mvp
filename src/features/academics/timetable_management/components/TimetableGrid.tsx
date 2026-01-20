@@ -9,9 +9,9 @@ export function TimetableGrid() {
 
     return (
         <div className="w-full overflow-x-auto">
-            <div className="min-w-[800px]">
+            <div className="min-w-[900px]">
                 {/* Grid Header - Days */}
-                <div className="grid grid-cols-[80px_repeat(5,1fr)] gap-2 mb-2">
+                <div className="grid grid-cols-[80px_repeat(6,1fr)] gap-2 mb-2">
                     <div className="p-2 text-center text-xs font-medium text-muted-foreground uppercase tracking-wide">
                         Time
                     </div>
@@ -35,7 +35,7 @@ export function TimetableGrid() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: rowIndex * 0.03 }}
-                        className="grid grid-cols-[80px_repeat(5,1fr)] gap-2 mb-2"
+                        className="grid grid-cols-[80px_repeat(6,1fr)] gap-2 mb-2"
                     >
                         {/* Time Label */}
                         <div className="p-2 flex items-center justify-center">
