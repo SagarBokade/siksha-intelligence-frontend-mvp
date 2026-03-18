@@ -10,6 +10,7 @@ export default function HomePage() {
   const getDashboardPath = () => {
     const roleToPath: Record<string, string> = {
       SUPER_ADMIN: '/dashboard/super-admin',
+      SCHOOL_ADMIN: '/dashboard/admin',
       ADMIN: '/dashboard/admin',
       TEACHER: '/dashboard/teacher',
       STUDENT: '/dashboard/student',

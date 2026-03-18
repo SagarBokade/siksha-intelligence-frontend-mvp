@@ -20,6 +20,11 @@ export interface AuthState {
   requiresPasswordChange: boolean
   loading: boolean
   error: string | null
+  /**
+   * Set to true when the session expires and there is no refresh token to recover.
+   * Triggers a "Session Expired" dialog instead of an immediate redirect.
+   */
+  sessionExpired: boolean
 }
 
 export interface LoginRequest {
@@ -47,6 +52,7 @@ const initialState: AuthState = {
   requiresPasswordChange: false,
   loading: false,
   error: null,
+  sessionExpired: false,
 }
 
 const extractMessage = (error: unknown): string => {
@@ -143,6 +149,7 @@ export const authSlice = createSlice({
       state.isAuthenticated = false
       state.loading = false
       state.error = null
+      state.sessionExpired = false
 
       clearStoredRefreshToken()
       // Clear persisted auth state
@@ -151,6 +158,26 @@ export const authSlice = createSlice({
       } catch {
         // ignore
       }
+    },
+
+    /**
+     * Called when the access token expires and no refresh token is available.
+     * Clears credentials but shows a dialog INSTEAD of immediately redirecting.
+     * The user acknowledges the dialog, then navigates to /login themselves.
+     */
+    markSessionExpired: (state) => {
+      state.user = null
+      state.accessToken = null
+      state.refreshToken = null
+      state.isAuthenticated = false
+      state.sessionExpired = true
+      clearStoredRefreshToken()
+      try { localStorage.removeItem('si_auth_state') } catch { /* ignore */ }
+    },
+
+    /** Called after the user dismisses the session-expired dialog. */
+    clearSessionExpired: (state) => {
+      state.sessionExpired = false
     },
   },
   extraReducers: (builder) => {
@@ -183,5 +210,5 @@ export const authSlice = createSlice({
   },
 })
 
-export const { setCredentials, logout } = authSlice.actions
+export const { setCredentials, logout, markSessionExpired, clearSessionExpired } = authSlice.actions
 export const authReducer = authSlice.reducer

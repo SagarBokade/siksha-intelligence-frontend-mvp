@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { initializeAxiosAuth } from '@/lib/axios'
 import { appReducer } from './appSlice'
-import { authReducer, logout, setCredentials } from './slices/authSlice'
+import { authReducer, markSessionExpired, setCredentials } from './slices/authSlice'
 
 // Load persisted auth state from localStorage
 const loadPersistedAuthState = () => {
@@ -60,8 +60,10 @@ initializeAxiosAuth({
     store.dispatch(setCredentials({ user: store.getState().auth.user, accessToken: token }))
   },
   logoutAndRedirect: () => {
-    store.dispatch(logout())
-    window.location.assign('/login')
+    // Dispatch markSessionExpired instead of immediately navigating.
+    // The SessionExpiredDialog component observes this flag and shows a modal.
+    // Navigation to /login only happens after the user clicks OK.
+    store.dispatch(markSessionExpired())
   },
 })
 

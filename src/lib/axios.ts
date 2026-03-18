@@ -196,11 +196,17 @@ const refreshAccessTokenOnce = async (): Promise<string> => {
   if (!refreshPromise) {
     const refreshToken = getStoredRefreshToken()
     if (!refreshToken) {
-      throw new Error('Refresh failed: missing refresh token')
+      throw new Error('Refresh failed: no refresh token stored (user must log in with Remember Me)')
     }
 
+    // DO NOT send the Authorization header here.
+    // The access token is expired at this point — Spring Security's JWT filter
+    // would reject the request with 401 before it reaches the refresh endpoint.
+    // The refresh token in the request body is the only credential needed.
     refreshPromise = refreshClient
-      .post('/refresh', { refreshToken })
+      .post('/auth/refresh-token', { refreshToken }, {
+        headers: { 'Content-Type': 'application/json' },
+      })
       .then((res) => {
         const rotated = extractRefreshToken(res.data)
         if (rotated) setStoredRefreshToken(rotated)
@@ -256,8 +262,16 @@ api.interceptors.response.use(
       return api(originalConfig)
     } catch (refreshError) {
       flushQueueFailure(refreshError)
-      authHandlers?.logoutAndRedirect()
-      return Promise.reject(refreshError)
+
+      // Only force logout if the refresh endpoint itself returned 401
+      // (meaning the refresh token is truly invalid/expired).
+      // A 500 on the refresh endpoint is a server-side bug — don't punish the user.
+      const refreshStatus = (refreshError as AxiosError)?.response?.status
+      if (refreshStatus === 401 || refreshStatus === 403) {
+        authHandlers?.logoutAndRedirect()
+      }
+
+      return Promise.reject(error) // Re-throw the original error, not the refresh error
     } finally {
       isRefreshing = false
     }

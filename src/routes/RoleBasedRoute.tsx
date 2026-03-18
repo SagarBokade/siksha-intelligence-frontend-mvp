@@ -48,6 +48,7 @@ export function RoleBasedRoute({ children, allowedRoles }: RoleBasedRouteProps) 
     // Redirect to the user's default dashboard based on their roles
     const defaultPaths: Record<string, string> = {
       SUPER_ADMIN: '/dashboard/super-admin',
+      SCHOOL_ADMIN: '/dashboard/admin',
       ADMIN: '/dashboard/admin',
       TEACHER: '/dashboard/teacher',
       STUDENT: '/dashboard/student',

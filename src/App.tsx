@@ -4,12 +4,16 @@ import { Toaster } from '@/components/ui/sonner'
 import LoginPage from '@/features/auth/LoginPage'
 import HomePage from '@/pages/HomePage'
 import SuperAdminDashboard from '@/pages/dashboard/super-admin/page'
-import AdminDashboard from '@/pages/dashboard/admin/page'
+import AdminLayout from '@/components/layout/AdminLayout'
+import AdminOverview from '@/pages/dashboard/admin/page'
+import StudentsPage from '@/pages/dashboard/admin/students/page'
+import StaffPage from '@/pages/dashboard/admin/staff/page'
 import TeacherDashboard from '@/pages/dashboard/teacher/page'
 import StudentDashboard from '@/pages/dashboard/student/page'
 import { GuestOnly } from '@/routes/GuestOnly'
 import { ProtectedRoute } from '@/routes/ProtectedRoute'
 import { RoleBasedRoute } from '@/routes/RoleBasedRoute'
+import SessionExpiredDialog from '@/components/common/SessionExpiredDialog'
 
 export default function App() {
   return (
@@ -47,17 +51,23 @@ export default function App() {
           }
         />
 
-        {/* Admin Dashboard - SUPER_ADMIN or ADMIN roles */}
+        {/* Admin Dashboard — nested layout with sidebar */}
         <Route
           path="/dashboard/admin"
           element={
             <ProtectedRoute>
-              <RoleBasedRoute allowedRoles={['SUPER_ADMIN', 'ADMIN']}>
-                <AdminDashboard />
+              <RoleBasedRoute allowedRoles={['SUPER_ADMIN', 'SCHOOL_ADMIN', 'ADMIN']}>
+                <AdminLayout />
               </RoleBasedRoute>
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<AdminOverview />} />
+          <Route path="students" element={<StudentsPage />} />
+          <Route path="staff" element={<StaffPage />} />
+          {/* Catch-all for unknown admin sub-routes */}
+          <Route path="*" element={<Navigate to="/dashboard/admin" replace />} />
+        </Route>
 
         {/* Teacher Dashboard - SUPER_ADMIN, ADMIN, or TEACHER roles */}
         <Route
@@ -87,6 +97,8 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
+      {/* Global session-expired modal — sits above all routes */}
+      <SessionExpiredDialog />
       <Toaster richColors />
     </BrowserRouter>
   )
