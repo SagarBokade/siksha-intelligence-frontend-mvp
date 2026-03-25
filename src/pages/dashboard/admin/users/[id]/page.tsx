@@ -32,6 +32,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { adminService } from "@/services/admin"
 import type { ComprehensiveUserProfileResponseDTO, AddressDTO, StudentGuardianDTO } from "@/services/types/profile"
@@ -201,33 +202,55 @@ export default function UserDetailsPage() {
                       <span className={`w-2 h-2 rounded-full mr-2 ${statusColor}`} />
                       {isActive ? "Active" : "Inactive"}
                     </Badge>
-                    <Button 
-                      variant={isActive ? "destructive" : "outline"} 
-                      size="sm" 
-                      onClick={async () => {
-                        try {
-                          const newStatus = !isActive;
-                          if (isStudent) {
-                            await adminService.toggleStudentActivation(id!, newStatus)
-                          } else {
-                            await adminService.toggleStaffActivation(id!, newStatus)
-                          }
-                          toast.success(`User ${newStatus ? 'activated' : 'blocked'} successfully`)
-                          
-                          // Optimistic or real reload
-                          setProfileData({
-                            ...profileData,
-                            staffDetails: profileData.staffDetails ? { ...profileData.staffDetails, active: newStatus } : undefined,
-                            studentDetails: profileData.studentDetails ? { ...profileData.studentDetails, enrollmentStatus: newStatus ? 'ACTIVE' : 'INACTIVE' } : undefined
-                          } as any)
-                        } catch (err: any) {
-                          toast.error(err.response?.data?.message || "Failed to update user status")
-                        }
-                      }}
-                      className="ml-auto"
-                    >
-                      {isActive ? "Block User" : "Activate User"}
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button 
+                          variant={isActive ? "destructive" : "outline"} 
+                          size="sm"
+                          className="ml-auto"
+                        >
+                          {isActive ? "Block User" : "Activate User"}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {isActive 
+                              ? "This will suspend the user's account and block all system access immediately."
+                              : "This will lift the suspension and restore the user's account access."}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={async () => {
+                              try {
+                                const newStatus = !isActive;
+                                if (isStudent) {
+                                  await adminService.toggleStudentActivation(id!, newStatus)
+                                } else {
+                                  await adminService.toggleStaffActivation(id!, newStatus)
+                                }
+                                toast.success(`User ${newStatus ? 'activated' : 'blocked'} successfully`)
+                                
+                                // Optimistic or real reload
+                                setProfileData({
+                                  ...profileData,
+                                  staffDetails: profileData.staffDetails ? { ...profileData.staffDetails, active: newStatus } : undefined,
+                                  studentDetails: profileData.studentDetails ? { ...profileData.studentDetails, enrollmentStatus: newStatus ? 'ACTIVE' : 'INACTIVE' } : undefined
+                                } as any)
+                              } catch (err: any) {
+                                toast.error(err.response?.data?.message || "Failed to update user status")
+                              }
+                            }}
+                            className={isActive ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground" : ""}
+                          >
+                            {isActive ? "Block User" : "Activate User"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                   <div className="text-muted-foreground flex flex-wrap gap-4 pt-1">
                     <span className="flex items-center gap-1.5"><Mail className="w-4 h-4" /> {basicProfile.email}</span>

@@ -6,6 +6,17 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/shared/UserAvatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const breadcrumbMap: Record<string, string> = {
   dashboard: "Dashboard",
@@ -79,15 +90,32 @@ export default function Topbar() {
         />
 
         {/* Logout */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 text-muted-foreground hover:text-destructive"
-          onClick={handleLogout}
-          title="Logout"
-        >
-          <LogOut className="h-4 w-4" />
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 text-muted-foreground hover:text-destructive"
+              title="Logout"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Ready to leave?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You will be securely logged out and your current session will end immediately.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Log Out
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </header>
   );
