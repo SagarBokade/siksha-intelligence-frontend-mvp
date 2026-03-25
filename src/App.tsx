@@ -8,6 +8,8 @@ import AdminLayout from '@/components/layout/AdminLayout'
 import AdminOverview from '@/pages/dashboard/admin/page'
 import StudentsPage from '@/pages/dashboard/admin/students/page'
 import StaffPage from '@/pages/dashboard/admin/staff/page'
+import SettingsPage from '@/pages/dashboard/admin/settings/page'
+import UserDetailsPage from '@/pages/dashboard/admin/users/[id]/page'
 import TeacherDashboard from '@/pages/dashboard/teacher/page'
 import StudentDashboard from '@/pages/dashboard/student/page'
 import { GuestOnly } from '@/routes/GuestOnly'
@@ -65,6 +67,8 @@ export default function App() {
           <Route index element={<AdminOverview />} />
           <Route path="students" element={<StudentsPage />} />
           <Route path="staff" element={<StaffPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="users/:type/:id" element={<UserDetailsPage />} />
           {/* Catch-all for unknown admin sub-routes */}
           <Route path="*" element={<Navigate to="/dashboard/admin" replace />} />
         </Route>
