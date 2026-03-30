@@ -17,7 +17,8 @@ import { SidebarTeachers } from './SidebarTeachers';
 import { TimetableGrid } from './TimetableGrid';
 import { AutoGenerateModal } from './AutoGenerateModal';
 import { CellEditDialog } from './CellEditDialog';
-import { setSubjectToCell, setTeacherToCell, resetGrid, setSelectedClass, setSelectedSection } from '../store/timetableSlice';
+import { SectionSettingsModal } from './SectionSettingsModal';
+import { setSubjectToCell, setTeacherToCell, setCellRoom, resetGrid, setSelectedClass, setSelectedSection } from '../store/timetableSlice';
 
 import type { RootState } from '@/store/store';
 import type { Subject, Teacher, GeneratedTimetable, ScheduleRequestDto } from '../types';
@@ -28,7 +29,7 @@ import {
     useGetRooms,
     useDeleteSectionSchedule 
 } from '../queries/useTimetableQueries';
-import { ArrowLeft, Save, Send, RotateCcw, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Send, RotateCcw, Sparkles, Trash2, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from './ConfirmDialog';
 
@@ -60,6 +61,7 @@ export function TimetableEditor() {
     const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [isPublishConfirmOpen, setIsPublishConfirmOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     // ─── Live API ─────────────────────────────────────────────────────────────
     const { data: editorContext, isLoading: isContextLoading } = useGetEditorContext(sectionIdToUse);
@@ -94,7 +96,7 @@ export function TimetableEditor() {
     useEffect(() => {
         if (editorContext?.section && (!selectedSection || !selectedClass)) {
             dispatch(setSelectedClass({ _id: classId || '', name: editorContext.section.className }));
-            dispatch(setSelectedSection({ _id: sectionId || '', name: editorContext.section.sectionName }));
+            dispatch(setSelectedSection({ _id: sectionId || '', name: editorContext.section.sectionName, defaultRoom: editorContext.section.defaultRoom }));
         }
     }, [editorContext?.section, selectedSection, selectedClass, dispatch, classId, sectionId]);
 
@@ -159,6 +161,9 @@ export function TimetableEditor() {
                     if (cellKey && subject && teacher) {
                         dispatch(setSubjectToCell({ cellKey, subject }));
                         dispatch(setTeacherToCell({ cellKey, teacher }));
+                        if (entry.roomId) {
+                            dispatch(setCellRoom({ cellKey, roomId: entry.roomId }));
+                        }
                     }
                 });
             }, 100);
@@ -256,7 +261,11 @@ export function TimetableEditor() {
 
                 // Priority: Use per-cell roomId from the grid. 
                 // We send null for roomId if it's not set, letting the backend intelligently auto-assign.
-                const roomId = value.roomId || null;
+                let roomId = value.roomId || null;
+                // Strip deleted/invalid rooms to prevent API crashes
+                if (roomId && !rooms.some(r => r.uuid === roomId)) {
+                    roomId = null;
+                }
 
                 payload.push({
                     sectionId: selectedSection._id,
@@ -412,9 +421,21 @@ export function TimetableEditor() {
                                 <ArrowLeft className="w-5 h-5" />
                             </Button>
                             <div>
-                                <h1 className="text-lg font-semibold">Timetable Editor</h1>
+                                <h1 className="text-lg font-semibold flex items-center gap-2">
+                                    Timetable Editor
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-6 w-6 ml-2 text-muted-foreground hover:text-foreground"
+                                        onClick={() => setIsSettingsOpen(true)}
+                                        title="Configure Section Settings (Default Room)"
+                                    >
+                                        <Settings className="h-4 w-4" />
+                                    </Button>
+                                </h1>
                                 <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">
                                     {selectedClass?.name || '...'} | {selectedSection?.name || '...'}
+                                    {selectedSection?.defaultRoom ? ` | Room: ${selectedSection.defaultRoom.name}` : ''}
                                 </p>
                             </div>
                         </div>
@@ -516,6 +537,20 @@ export function TimetableEditor() {
                     subjects={liveSubjects}
                     teachers={liveTeachers}
                     rooms={rooms}
+                />
+
+                <SectionSettingsModal
+                    open={isSettingsOpen}
+                    onOpenChange={setIsSettingsOpen}
+                    sectionId={sectionIdToUse || ''}
+                    sectionName={selectedSection?.name || ''}
+                    currentDefaultRoomId={selectedSection?.defaultRoom?.uuid}
+                    rooms={rooms as any}
+                    onSuccessUpdate={(updatedRoom) => {
+                        if (selectedSection) {
+                            dispatch(setSelectedSection({ ...selectedSection, defaultRoom: updatedRoom }));
+                        }
+                    }}
                 />
 
                 <ConfirmDialog 

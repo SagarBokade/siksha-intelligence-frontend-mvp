@@ -1,8 +1,10 @@
 import { api } from "@/lib/axios";
+import type { NestedRoomResponseDto } from "./types/academics";
 
 export interface SectionResponseDto {
     uuid: string;
     sectionName: string;
+    defaultRoom?: NestedRoomResponseDto;
 }
 
 export interface AcademicClassResponseDto {
