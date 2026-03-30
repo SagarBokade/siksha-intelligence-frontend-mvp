@@ -10,7 +10,8 @@ import {
   Bell,
   User,
   CalendarDays,
-  Map
+  Map,
+  ClipboardCheck,
 } from "lucide-react";
 
 export type NavItem = {
@@ -35,6 +36,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Staff", path: "/dashboard/admin/staff", icon: Users },
   { label: "Timetable", path: "/dashboard/admin/timetable", icon: CalendarDays },
   { label: "Curriculum", path: "/dashboard/admin/curriculum", icon: Map },
+  { label: "Examinations", path: "/dashboard/admin/examinations", icon: ClipboardCheck },
   { label: "Settings", path: "/dashboard/admin/settings", icon: Settings },
 ];
 

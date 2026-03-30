@@ -13,6 +13,7 @@ import AdminTimetablePage from '@/pages/dashboard/admin/timetable/page'
 import AdminTimetableEditorPage from '@/pages/dashboard/admin/timetable/editor/page'
 import UserDetailsPage from '@/pages/dashboard/admin/users/[id]/page'
 import CurriculumPage from '@/pages/dashboard/admin/curriculum/page'
+import ExaminationsPage from '@/pages/dashboard/admin/examinations/page'
 import TeacherDashboard from '@/pages/dashboard/teacher/page'
 import StudentDashboard from '@/pages/dashboard/student/page'
 import StudentProfilePage from '@/pages/dashboard/student/profile/page'
@@ -76,6 +77,7 @@ export default function App() {
           <Route path="timetable" element={<AdminTimetablePage />} />
           <Route path="timetable/editor" element={<AdminTimetableEditorPage />} />
           <Route path="curriculum" element={<CurriculumPage />} />
+          <Route path="examinations" element={<ExaminationsPage />} />
           <Route path="users/:type/:id" element={<UserDetailsPage />} />
           {/* Catch-all for unknown admin sub-routes */}
           <Route path="*" element={<Navigate to="/dashboard/admin" replace />} />
