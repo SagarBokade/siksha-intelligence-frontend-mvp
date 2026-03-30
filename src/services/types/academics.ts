@@ -8,6 +8,7 @@ export interface AcademicClassRequestDto {
 export interface SectionResponseDto {
   uuid: string;
   sectionName: string;
+  defaultRoom?: NestedRoomResponseDto;
 }
 
 export interface AcademicClassResponseDto {
@@ -18,6 +19,7 @@ export interface AcademicClassResponseDto {
 
 export interface SectionRequestDto {
   sectionName: string;
+  defaultRoomId?: string;
 }
 
 // Subjects
@@ -35,16 +37,68 @@ export interface SubjectResponseDto {
 }
 
 // Rooms
+export interface BuildingRequestDto {
+  name: string;
+  code?: string;
+  totalFloors?: number;
+}
+
+export interface BuildingResponseDto {
+  uuid: string;
+  name: string;
+  code?: string;
+  totalFloors?: number;
+}
+
 export interface RoomRequestDto {
   name: string;
-  roomType?: string;
+  roomType: string;
+  seatingType: string;
+  rowCount: number;
+  columnsPerRow: number;
+  seatsPerUnit: number;
+  floorNumber: number;
+  buildingId: string;
+  hasProjector?: boolean;
+  hasAC?: boolean;
+  hasWhiteboard?: boolean;
+  isAccessible?: boolean;
+  otherAmenities?: string;
 }
 
 export interface RoomResponseDto {
   uuid: string;
   name: string;
-  roomType?: string;
+  roomType: string;
+  seatingType: string;
+  rowCount: number;
+  columnsPerRow: number;
+  seatsPerUnit: number;
+  totalCapacity: number;
+  floorNumber: number;
+  building: BuildingResponseDto;
+  hasProjector?: boolean;
+  hasAC?: boolean;
+  hasWhiteboard?: boolean;
+  isAccessible?: boolean;
+  otherAmenities?: string;
 }
+
+// Room & Seating type constants
+export const ROOM_TYPE_OPTIONS = [
+  { value: 'CLASSROOM', label: 'Classroom' },
+  { value: 'LABORATORY', label: 'Laboratory' },
+  { value: 'COMPUTER_LAB', label: 'Computer Lab' },
+  { value: 'LIBRARY', label: 'Library' },
+  { value: 'OTHER', label: 'Other' },
+] as const;
+
+export const SEATING_TYPE_OPTIONS = [
+  { value: 'BENCH', label: 'Bench' },
+  { value: 'DESK_CHAIR', label: 'Desk & Chair' },
+  { value: 'WORKSTATION', label: 'Workstation' },
+  { value: 'TERMINAL', label: 'Terminal' },
+] as const;
 
 // Timeslots
 export interface TimeslotRequestDto {
@@ -79,6 +133,7 @@ export interface NestedSectionResponseDto {
   uuid: string;
   sectionName: string;
   className: string;
+  defaultRoom?: NestedRoomResponseDto;
 }
 
 export interface NestedSubjectResponseDto {
@@ -96,6 +151,7 @@ export interface NestedRoomResponseDto {
   uuid: string;
   name: string;
   roomType?: string;
+  totalCapacity?: number;
 }
 
 export interface NestedTimeslotResponseDto {
@@ -115,3 +171,4 @@ export interface ScheduleResponseDto {
   room: NestedRoomResponseDto;
   timeslot: NestedTimeslotResponseDto;
 }
+

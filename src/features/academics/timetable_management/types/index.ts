@@ -21,6 +21,7 @@ export interface ClassData {
 export interface Section {
     _id: string;
     name: string;
+    defaultRoom?: { uuid: string; name: string };
 }
 
 export type CellStatus = 'EMPTY' | 'AWAITING_TEACHER' | 'LOCKED';
@@ -157,6 +158,7 @@ export interface EditorContextDto {
         uuid: string;
         sectionName: string;
         className: string;
+        defaultRoom?: { uuid: string; name: string };
     };
     timeslots: Array<{
         uuid: string;
