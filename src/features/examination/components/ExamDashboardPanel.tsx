@@ -5,7 +5,6 @@ import {
   FileEdit,
   CheckCircle2,
   TrendingUp,
-  Clock,
   ChevronRight,
   BookOpen,
   Award,
@@ -281,6 +280,13 @@ export default function ExamDashboardPanel({
                           Draft
                         </Badge>
                       )}
+                      {exam.published && (
+                        <Badge
+                          className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs"
+                        >
+                          Published
+                        </Badge>
+                      )}
                       <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   </motion.div>
@@ -352,6 +358,78 @@ export default function ExamDashboardPanel({
           )}
         </motion.div>
       </div>
+
+      {/* ── Published Exams ──────────────────────────────────────── */}
+      {published.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.24 }}
+          className="rounded-2xl border border-border/50 bg-card overflow-hidden"
+        >
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-lg bg-emerald-500/10">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground text-sm">
+                  Published Exams
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {published.length} exam{published.length !== 1 ? "s" : ""} live
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs gap-1 text-primary"
+              onClick={onNavigateToExams}
+            >
+              View All <ChevronRight className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+
+          <div className="divide-y divide-border/30">
+            {published.slice(0, 8).map((exam, i) => (
+              <motion.div
+                key={exam.uuid}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.28 + i * 0.04 }}
+                className="flex items-center justify-between px-5 py-3.5 hover:bg-muted/30 transition-colors group cursor-pointer"
+                onClick={() => onViewExamSchedules(exam)}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-2 h-2 rounded-full shrink-0 bg-emerald-500" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {exam.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(exam.startDate)} — {formatDate(exam.endDate)} · AY: {exam.academicYear}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Badge
+                    variant="outline"
+                    className={examTypeColors[exam.examType] || ""}
+                  >
+                    {exam.examType.replace(/_/g, " ")}
+                  </Badge>
+                  <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20 text-xs">
+                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                    Published
+                  </Badge>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       {/* ── Quick Access Cards ────────────────────────────────────── */}
       <motion.div

@@ -7,10 +7,10 @@ import {
   ArrowLeft,
   Clock,
   BookOpen,
-  Hash,
   Loader2,
   ClipboardList,
   Calendar,
+  DoorOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,6 +59,7 @@ import type {
   ExamScheduleRequestDTO,
   ExamScheduleResponseDTO,
 } from "@/services/types/examination";
+
 import { toast } from "sonner";
 
 interface ClassDto {
@@ -78,17 +79,34 @@ interface Props {
   onEnterMarks: (schedule: ExamScheduleResponseDTO) => void;
 }
 
-const emptyForm: ExamScheduleRequestDTO = {
+/* ── internal form state (keeps the original Start / End UI) ── */
+interface ScheduleFormState {
+  classId: string;
+  sectionId: string;
+  subjectId: string;
+  examDate: string;
+  startTime: string;
+  endTime: string;
+  roomNumber: string;
+}
+
+const emptyForm: ScheduleFormState = {
   classId: "",
   sectionId: "",
   subjectId: "",
   examDate: "",
   startTime: "",
   endTime: "",
-  maxMarks: 100,
-  passingMarks: 33,
   roomNumber: "",
 };
+
+function calcDuration(start: string, end: string): number {
+  if (!start || !end) return 0;
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  const diff = eh * 60 + em - (sh * 60 + sm);
+  return diff > 0 ? diff : 0;
+}
 
 export default function ExamSchedulePanel({
   exam,
@@ -112,11 +130,13 @@ export default function ExamSchedulePanel({
     staleTime: 10 * 60 * 1000,
   });
 
+
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ExamScheduleResponseDTO | null>(null);
   const [deleteTarget, setDeleteTarget] =
     useState<ExamScheduleResponseDTO | null>(null);
-  const [form, setForm] = useState<ExamScheduleRequestDTO>(emptyForm);
+  const [form, setForm] = useState<ScheduleFormState>(emptyForm);
 
   const selectedClassSections =
     classes.find((c) => c.classId === form.classId)?.sections ?? [];
@@ -134,14 +154,14 @@ export default function ExamSchedulePanel({
       sectionId: s.sectionId || "",
       subjectId: s.subjectId,
       examDate: s.examDate,
-      startTime: s.startTime,
-      endTime: s.endTime,
-      maxMarks: s.maxMarks,
-      passingMarks: s.passingMarks,
+      startTime: s.startTime ? s.startTime.substring(0, 5) : "",
+      endTime: s.endTime ? s.endTime.substring(0, 5) : "",
       roomNumber: s.roomNumber || "",
     });
     setDialogOpen(true);
   };
+
+
 
   const handleSubmit = () => {
     if (
@@ -154,11 +174,30 @@ export default function ExamSchedulePanel({
       toast.error("Please fill all required fields");
       return;
     }
+
+    const duration = calcDuration(form.startTime, form.endTime);
+    if (duration <= 0) {
+      toast.error("End time must be after start time");
+      return;
+    }
+
+    const formatTimeForBackend = (t: string) => (t && t.length === 5 ? `${t}:00` : t);
+
     const payload: ExamScheduleRequestDTO = {
-      ...form,
+      classId: form.classId,
       sectionId: form.sectionId || undefined,
+      subjectId: form.subjectId,
+      examDate: form.examDate,
+      startTime: formatTimeForBackend(form.startTime),
+      endTime: formatTimeForBackend(form.endTime),
+      duration,
+      maxMarks: 100,
+      passingMarks: 33,
       roomNumber: form.roomNumber || undefined,
     };
+
+    console.log("[DEBUG] Schedule form state:", JSON.stringify(form));
+    console.log("[DEBUG] Schedule payload:", JSON.stringify(payload));
 
     if (editing) {
       updateSchedule.mutate(
@@ -255,8 +294,6 @@ export default function ExamSchedulePanel({
                 <TableHead>Class / Section</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Time</TableHead>
-                <TableHead className="text-center">Max</TableHead>
-                <TableHead className="text-center">Pass</TableHead>
                 <TableHead>Room</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -300,31 +337,23 @@ export default function ExamSchedulePanel({
                     <TableCell>
                       <span className="flex items-center gap-1 text-sm">
                         <Clock className="w-3.5 h-3.5" />
-                        {s.startTime} – {s.endTime}
+                        {s.startTime && s.endTime
+                          ? `${s.startTime.substring(0, 5)} – ${s.endTime.substring(0, 5)}`
+                          : "—"}
                       </span>
                     </TableCell>
-                    <TableCell className="text-center font-medium">
-                      {s.maxMarks}
-                    </TableCell>
-                    <TableCell className="text-center text-muted-foreground">
-                      {s.passingMarks}
-                    </TableCell>
                     <TableCell>
-                      {s.roomNumber || (
+                      {s.roomNumber ? (
+                        <Badge variant="outline" className="gap-1 border-border/50">
+                          <DoorOpen className="w-3 h-3" />
+                          {s.roomNumber}
+                        </Badge>
+                      ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 gap-1 text-xs text-primary"
-                          onClick={() => onEnterMarks(s)}
-                        >
-                          <Hash className="w-3.5 h-3.5" />
-                          Marks
-                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -461,41 +490,15 @@ export default function ExamSchedulePanel({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="grid gap-1.5">
-                <label className="text-sm font-medium">
-                  Max Marks <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  type="number"
-                  value={form.maxMarks}
-                  onChange={(e) =>
-                    setForm({ ...form, maxMarks: Number(e.target.value) })
-                  }
-                />
-              </div>
-              <div className="grid gap-1.5">
-                <label className="text-sm font-medium">
-                  Pass Marks <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  type="number"
-                  value={form.passingMarks}
-                  onChange={(e) =>
-                    setForm({ ...form, passingMarks: Number(e.target.value) })
-                  }
-                />
-              </div>
-              <div className="grid gap-1.5">
-                <label className="text-sm font-medium">Room</label>
-                <Input
-                  value={form.roomNumber || ""}
-                  onChange={(e) =>
-                    setForm({ ...form, roomNumber: e.target.value })
-                  }
-                  placeholder="e.g. R-201"
-                />
-              </div>
+            <div className="grid gap-1.5">
+              <label className="text-sm font-medium">Room</label>
+              <Input
+                value={form.roomNumber || ""}
+                onChange={(e) =>
+                  setForm({ ...form, roomNumber: e.target.value })
+                }
+                placeholder="e.g. R-201"
+              />
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>

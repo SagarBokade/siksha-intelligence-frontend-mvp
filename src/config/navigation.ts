@@ -15,8 +15,7 @@ import {
   ClipboardCheck,
 
   Clock,
-  DoorOpen
-main
+  DoorOpen,
 } from "lucide-react";
 
 export type NavItem = {

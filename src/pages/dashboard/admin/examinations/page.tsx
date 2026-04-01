@@ -7,6 +7,8 @@ import {
   Award,
   HelpCircle,
   BookOpen,
+  Shield,
+  Armchair,
 } from "lucide-react";
 import ExamDashboardPanel from "@/features/examination/components/ExamDashboardPanel";
 import ExamListPanel from "@/features/examination/components/ExamListPanel";
@@ -15,6 +17,8 @@ import GradeSystemPanel from "@/features/examination/components/GradeSystemPanel
 import MarksEntryPanel from "@/features/examination/components/MarksEntryPanel";
 import QuestionBankPanel from "@/features/examination/components/QuestionBankPanel";
 import PastPapersPanel from "@/features/examination/components/PastPapersPanel";
+import InvigilationPanel from "@/features/examination/components/InvigilationPanel";
+import SeatingPlanPanel from "@/features/examination/components/SeatingPlanPanel";
 import {
   useGetAllGradeSystems,
   useGetAllQuestions,
@@ -25,7 +29,7 @@ import type {
   ExamScheduleResponseDTO,
 } from "@/services/types/examination";
 
-type ActiveTab = "dashboard" | "exams" | "grades" | "questions" | "papers";
+type ActiveTab = "dashboard" | "exams" | "grades" | "questions" | "papers" | "invigilation" | "seating";
 
 // Sub-view management for drill-down navigation
 type SubView =
@@ -66,6 +70,16 @@ const tabs: {
     id: "papers",
     label: "Past Papers",
     icon: BookOpen,
+  },
+  {
+    id: "invigilation",
+    label: "Invigilation",
+    icon: Shield,
+  },
+  {
+    id: "seating",
+    label: "Seating Plan",
+    icon: Armchair,
   },
 ];
 
@@ -233,6 +247,28 @@ export default function ExaminationsPage() {
           transition={{ duration: 0.2 }}
         >
           <PastPapersPanel />
+        </motion.div>
+      )}
+
+      {activeTab === "invigilation" && (
+        <motion.div
+          key="invigilation"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <InvigilationPanel />
+        </motion.div>
+      )}
+
+      {activeTab === "seating" && (
+        <motion.div
+          key="seating"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <SeatingPlanPanel />
         </motion.div>
       )}
     </div>
