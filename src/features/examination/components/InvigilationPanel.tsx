@@ -12,6 +12,7 @@ import {
   Calendar,
   BookOpen,
   DoorOpen,
+  Printer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,6 +110,11 @@ export default function InvigilationPanel() {
   const removeMutation = useRemoveInvigilator();
 
   // ── Derived ─────────────────────────────────────────────────────
+  const selectedSchedule = useMemo(
+    () => schedules.find((s) => s.scheduleId === selectedScheduleId),
+    [schedules, selectedScheduleId]
+  );
+  
   const selectedExam: ExamResponseDTO | undefined = exams.find(
     (e) => e.uuid === selectedExamUuid
   );
@@ -184,9 +190,32 @@ export default function InvigilationPanel() {
   const secondaryCount = invigilations.filter((i) => i.role === "SECONDARY").length;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5" id="printable-invigilation-plan">
+      {/* ── Print Header (Only visible during print) ───────────────── */}
+      <div className="hidden print:block mb-8 text-center">
+        <h2 className="text-2xl font-bold border-b pb-2">Invigilator Shift Report</h2>
+        {selectedSchedule && (
+          <p className="text-muted-foreground mt-2 font-mono">
+            Exam Schedule: {selectedSchedule.subjectName} — {selectedSchedule.className} 
+            {selectedSchedule.sectionName ? ` (${selectedSchedule.sectionName})` : ""}
+            {selectedSchedule.examDate && (
+              <>
+                <br/>
+                Date: {new Date(selectedSchedule.examDate).toLocaleDateString("en-IN")}
+              </>
+            )}
+            {selectedSchedule.startTime && selectedSchedule.endTime && (
+              <>
+                <span className="mx-2">•</span>
+                Time Block: {selectedSchedule.startTime.substring(0, 5)} – {selectedSchedule.endTime.substring(0, 5)}
+              </>
+            )}
+          </p>
+        )}
+      </div>
+
       {/* ── Selectors Row ───────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:hidden">
         {/* Exam selector */}
         <div className="grid gap-1.5">
           <label className="text-sm font-medium text-muted-foreground">
@@ -250,6 +279,16 @@ export default function InvigilationPanel() {
                 disabled={!selectedScheduleId}
               />
             </div>
+            <Button
+              onClick={() => window.print()}
+              variant="outline"
+              size="sm"
+              className="gap-1.5 shrink-0 h-9"
+              disabled={!selectedScheduleId || invigilations.length === 0}
+            >
+              <Printer className="w-4 h-4" />
+              Print
+            </Button>
             <Button
               onClick={openAssign}
               size="sm"
@@ -342,7 +381,7 @@ export default function InvigilationPanel() {
                 <TableHead>Staff Name</TableHead>
                 <TableHead>Assigned Resource</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-right print:hidden">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -394,7 +433,7 @@ export default function InvigilationPanel() {
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right print:hidden">
                       <Button
                         variant="ghost"
                         size="sm"

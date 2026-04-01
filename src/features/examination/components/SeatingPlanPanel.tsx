@@ -12,6 +12,7 @@ import {
   CheckSquare,
   XSquare,
   Trash2,
+  Printer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -298,7 +299,30 @@ export default function SeatingPlanPanel() {
   const selectedCount = selectedIds.size;
 
   return (
-    <div className="space-y-5 relative">
+    <div className="space-y-5 relative" id="printable-seating-plan">
+      {/* ── Print Header (Only visible during print) ───────────────── */}
+      <div className="hidden print:block mb-8 text-center">
+        <h2 className="text-2xl font-bold border-b pb-2">Seat Allocation Report</h2>
+        {selectedSchedule && (
+          <p className="text-muted-foreground mt-2 font-mono">
+            Exam Schedule: {selectedSchedule.subjectName} — {selectedSchedule.className} 
+            {selectedSchedule.sectionName ? ` (${selectedSchedule.sectionName})` : ""}
+            {selectedSchedule.examDate && (
+              <>
+                <br/>
+                Date: {new Date(selectedSchedule.examDate).toLocaleDateString("en-IN")}
+              </>
+            )}
+            {selectedSchedule.startTime && selectedSchedule.endTime && (
+              <>
+                <span className="mx-2">•</span>
+                Time Block: {selectedSchedule.startTime.substring(0, 5)} – {selectedSchedule.endTime.substring(0, 5)}
+              </>
+            )}
+          </p>
+        )}
+      </div>
+
       {/* ── Floating Bulk Action Bar ─────────────────────────────── */}
       <AnimatePresence>
         {selectedCount > 0 && (
@@ -307,7 +331,7 @@ export default function SeatingPlanPanel() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            className="sticky top-2 z-30 flex items-center gap-3 px-4 py-2.5 rounded-xl border border-destructive/30 bg-destructive/5 backdrop-blur-md shadow-lg mb-4"
+            className="sticky top-2 z-30 flex items-center gap-3 px-4 py-2.5 rounded-xl border border-destructive/30 bg-destructive/5 backdrop-blur-md shadow-lg mb-4 print:hidden"
           >
             <CheckSquare className="w-4 h-4 text-destructive" />
             <span className="text-sm font-semibold text-destructive">
@@ -338,7 +362,7 @@ export default function SeatingPlanPanel() {
       </AnimatePresence>
 
       {/* ── Selectors Row ───────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:hidden">
         <div className="grid gap-1.5">
           <label className="text-sm font-medium text-muted-foreground">Select Exam</label>
           <Select value={selectedExamUuid} onValueChange={handleExamChange}>
@@ -393,6 +417,16 @@ export default function SeatingPlanPanel() {
                 disabled={!selectedScheduleId}
               />
             </div>
+            <Button
+              onClick={() => window.print()}
+              variant="outline"
+              size="sm"
+              className="gap-1.5 shrink-0 h-9"
+              disabled={!selectedScheduleId || allocations.length === 0}
+            >
+              <Printer className="w-4 h-4" />
+              Print
+            </Button>
             <Button
               onClick={openAutoFill}
               variant="outline"
@@ -469,7 +503,7 @@ export default function SeatingPlanPanel() {
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/40">
-                <TableHead className="w-10">
+                <TableHead className="w-10 print:hidden">
                   <Checkbox
                     checked={allFilteredSelected ? true : someFilteredSelected ? "indeterminate" : false}
                     onCheckedChange={toggleSelectAll}
@@ -479,11 +513,10 @@ export default function SeatingPlanPanel() {
                 </TableHead>
                 <TableHead className="w-12">#</TableHead>
                 <TableHead>Student</TableHead>
-                <TableHead>Time Block</TableHead>
+                <TableHead className="print:hidden">Time Block</TableHead>
                 <TableHead>Room</TableHead>
                 <TableHead>Seat Label</TableHead>
-                <TableHead className="text-right">Coord</TableHead>
-                <TableHead className="w-12"></TableHead>
+                <TableHead className="w-12 print:hidden"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -504,7 +537,7 @@ export default function SeatingPlanPanel() {
                         toggleSelect(alloc.allocationId);
                       }}
                     >
-                      <TableCell onClick={(e) => e.stopPropagation()}>
+                      <TableCell onClick={(e) => e.stopPropagation()} className="print:hidden">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleSelect(alloc.allocationId)}
@@ -526,7 +559,7 @@ export default function SeatingPlanPanel() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="print:hidden">
                         <Badge variant="outline" className="font-mono text-xs">
                           {new Date(alloc.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -{" "}
                           {new Date(alloc.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -544,10 +577,7 @@ export default function SeatingPlanPanel() {
                           {alloc.seatLabel}
                         </span>
                       </TableCell>
-                      <TableCell className="text-right text-xs text-muted-foreground">
-                        (R{alloc.rowNumber}-C{alloc.columnNumber})
-                      </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right print:hidden">
                         <Button
                           variant="ghost"
                           size="sm"
