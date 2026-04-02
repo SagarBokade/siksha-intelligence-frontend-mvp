@@ -72,6 +72,9 @@ export const useAutoAllocateSeatsBulk = () => {
         queryKey: keys.allocationsByExam(v.examScheduleId),
       });
       qc.invalidateQueries({
+        queryKey: keys.seatGrid(v.roomId, v.examScheduleId),
+      });
+      qc.invalidateQueries({
         queryKey: keys.availableRooms(v.examScheduleId),
       });
     },
@@ -87,6 +90,7 @@ export const useRemoveAllocation = () => {
       qc.invalidateQueries({
         queryKey: keys.allocationsByExam(v.examScheduleId),
       });
+      qc.invalidateQueries({ queryKey: ["seatAllocation", "grid"] });
       qc.invalidateQueries({
         queryKey: keys.availableRooms(v.examScheduleId),
       });
@@ -103,6 +107,7 @@ export const useBulkRemoveAllocations = () => {
       qc.invalidateQueries({
         queryKey: keys.allocationsByExam(v.examScheduleId),
       });
+      qc.invalidateQueries({ queryKey: ["seatAllocation", "grid"] });
       qc.invalidateQueries({
         queryKey: keys.availableRooms(v.examScheduleId),
       });

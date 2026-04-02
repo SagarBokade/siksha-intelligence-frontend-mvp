@@ -13,6 +13,7 @@ import {
   XSquare,
   Trash2,
   Printer,
+  GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -136,17 +137,72 @@ export default function SeatingPlanPanel() {
         s.studentName.toLowerCase().includes(q) ||
         s.roomName.toLowerCase().includes(q) ||
         s.seatLabel.toLowerCase().includes(q) ||
-        s.enrollmentNumber?.toLowerCase().includes(q)
+        (s.enrollmentNumber && s.enrollmentNumber.toLowerCase().includes(q))
     );
   }, [allocations, searchTerm]);
+
+  // ── Print Summary Calculation ───────────────────────────────────
+  const printSummaryRows = useMemo(() => {
+    const roomGroups = allocations.reduce((acc, alloc) => {
+      if (!acc[alloc.roomName]) {
+        acc[alloc.roomName] = [];
+      }
+      acc[alloc.roomName].push(alloc);
+      return acc;
+    }, {} as Record<string, typeof allocations>);
+
+    const rows = Object.entries(roomGroups).map(([roomName, allocs]) => {
+      const enrollments = allocs.map(a => a.enrollmentNumber).filter(Boolean);
+      let enrollmentRange = "ALL";
+      let minEnrollment = "";
+      
+      if (enrollments.length > 0) {
+        // Natural sort (so "S9" comes before "S10")
+        enrollments.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+        minEnrollment = enrollments[0];
+        
+        if (enrollments.length === 1) {
+             enrollmentRange = enrollments[0] || "ALL";
+        } else {
+             enrollmentRange = `${enrollments[0]} -\n${enrollments[enrollments.length - 1]}`;
+        }
+      }
+
+      return {
+        batch: selectedExam?.academicYear || "-",
+        programme: `${selectedSchedule?.className || ""} ${selectedSchedule?.sectionName ? `(${selectedSchedule.sectionName})` : ""}`.trim(),
+        enrollmentRange,
+        minEnrollment, // we use this for sorting the table rows
+        count: allocs.length,
+        room: roomName,
+        area: "Main Campus" // Placeholder as area is not in DB
+      };
+    });
+
+    // Sort the table rows logically by lowest enrollment number first, then by room
+    rows.sort((a, b) => {
+       if (a.minEnrollment && b.minEnrollment) {
+           return a.minEnrollment.localeCompare(b.minEnrollment, undefined, { numeric: true, sensitivity: 'base' });
+       }
+       return a.room.localeCompare(b.room);
+    });
+
+    // Finally assign logical S.No after sorting
+    return rows.map((r, index) => ({
+      ...r,
+      sno: index + 1
+    }));
+  }, [allocations, selectedSchedule, selectedExam]);
 
   const totalStudents = availableRooms.length > 0 ? availableRooms[0].totalStudentsToSeat : (selectedSchedule?.totalStudents ?? 0);
   const seatedCount = allocations.length;
   const remainingToSeat = Math.max(0, totalStudents - seatedCount);
 
+  const currentMaxPerSeat = selectedSchedule?.maxStudentsPerSeat || 1;
+
   const targetAutoFillRoom = availableRooms.find(r => r.roomUuid === autoFillRoomUuid);
   const willSeatCount = targetAutoFillRoom 
-    ? Math.min(remainingToSeat, targetAutoFillRoom.availableSeats) 
+    ? Math.min(remainingToSeat, targetAutoFillRoom.availableCapacity ?? (targetAutoFillRoom.availableSeats * currentMaxPerSeat)) 
     : 0;
 
   const maxRow = seatGrid.length > 0 ? Math.max(...seatGrid.map(s => s.rowNumber)) : 0;
@@ -301,26 +357,66 @@ export default function SeatingPlanPanel() {
   return (
     <div className="space-y-5 relative" id="printable-seating-plan">
       {/* ── Print Header (Only visible during print) ───────────────── */}
-      <div className="hidden print:block mb-8 text-center">
-        <h2 className="text-2xl font-bold border-b pb-2">Seat Allocation Report</h2>
+      <div className="hidden print:block w-full text-black font-serif bg-white" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+        <div className="flex items-center justify-center gap-4 mb-2">
+            <div className="w-16 h-16 flex items-center justify-center text-red-600 border border-red-600/30 rounded-full bg-red-50">
+               <GraduationCap className="w-10 h-10" />
+            </div>
+            <div className="text-center">
+                <h1 className="text-2xl font-bold text-blue-900 leading-tight uppercase">Siksha Intelligence</h1>
+                <h2 className="text-xl font-bold tracking-wider uppercase">Examination Department</h2>
+                <h3 className="text-base font-semibold uppercase mt-1">
+                   End Term Examination {selectedExam?.academicYear ? `, ${selectedExam.academicYear}` : ""}
+                </h3>
+            </div>
+        </div>
+        
+        <div className="bg-amber-400 py-1 border-y-2 border-black w-full text-center mt-2">
+           <h2 className="text-lg font-bold uppercase tracking-widest text-black">Seating Plan</h2>
+        </div>
+        
         {selectedSchedule && (
-          <p className="text-muted-foreground mt-2 font-mono">
-            Exam Schedule: {selectedSchedule.subjectName} — {selectedSchedule.className} 
-            {selectedSchedule.sectionName ? ` (${selectedSchedule.sectionName})` : ""}
-            {selectedSchedule.examDate && (
-              <>
-                <br/>
-                Date: {new Date(selectedSchedule.examDate).toLocaleDateString("en-IN")}
-              </>
-            )}
-            {selectedSchedule.startTime && selectedSchedule.endTime && (
-              <>
-                <span className="mx-2">•</span>
-                Time Block: {selectedSchedule.startTime.substring(0, 5)} – {selectedSchedule.endTime.substring(0, 5)}
-              </>
-            )}
-          </p>
+           <div className="text-center py-2 text-md font-bold uppercase tracking-wider text-black">
+              {selectedSchedule.subjectName} ( {selectedSchedule.startTime?.substring(0, 5)} - {selectedSchedule.endTime?.substring(0, 5)} )
+           </div>
         )}
+
+        <table className="w-full mt-4 text-sm border-collapse border border-black printable-table text-black">
+          <thead>
+            <tr className="bg-gray-100 border-b border-black">
+              <th className="border border-black p-2 w-12 text-center text-black">S.No</th>
+              <th className="border border-black p-2 w-20 text-center text-black">Batch</th>
+              <th className="border border-black p-2 w-32 text-center text-black">Programme/<br/>Branch</th>
+              <th className="border border-black p-2 text-center text-black">Enrollment No</th>
+              <th className="border border-black p-2 w-24 text-center text-black">No of<br/>Students</th>
+              <th className="border border-black p-2 w-28 text-center text-black">Room No.</th>
+              <th className="border border-black p-2 w-32 text-center text-black">Area</th>
+            </tr>
+          </thead>
+          <tbody>
+            {printSummaryRows.map((row) => (
+              <tr key={row.sno} className="border-b border-black leading-tight">
+                <td className="border border-black font-bold p-1.5 text-center text-black">{row.sno}</td>
+                <td className="border border-black p-1.5 font-bold text-center text-black">{row.batch}</td>
+                <td className="border border-black font-bold p-1.5 text-center text-black">{row.programme}</td>
+                <td className="border border-black p-1.5 font-bold text-center text-black">{row.enrollmentRange}</td>
+                <td className="border border-black p-1.5 text-center font-bold text-black">{row.count}</td>
+                <td className="border border-black p-1.5 text-center font-bold text-black">{row.room}</td>
+                <td className="border border-black p-1.5 font-bold text-center text-black uppercase">{row.area}</td>
+              </tr>
+            ))}
+            {printSummaryRows.length === 0 && (
+                <tr>
+                    <td colSpan={8} className="border border-black p-4 text-center text-black italic">No allocations available for this schedule.</td>
+                </tr>
+            )}
+          </tbody>
+        </table>
+        
+        <div className="mt-8 pt-4 w-full flex justify-between text-xs font-bold border-t border-black px-4">
+           <span>* Auto-generated by Siksha Intelligence Seating Engine</span>
+           <span>Date Printed: {new Date().toLocaleDateString("en-IN")}</span>
+        </div>
       </div>
 
       {/* ── Floating Bulk Action Bar ─────────────────────────────── */}
@@ -455,11 +551,15 @@ export default function SeatingPlanPanel() {
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap items-center gap-3"
+          className="flex flex-wrap items-center gap-3 print:hidden"
         >
           <Badge variant="secondary" className="gap-1.5 px-3 py-1">
             <Users className="w-3.5 h-3.5" />
             {seatedCount} / {totalStudents} Students Seated
+          </Badge>
+          <Badge variant="outline" className="gap-1.5 px-3 py-1 border-primary/20 text-primary bg-primary/5">
+            <Armchair className="w-3.5 h-3.5" />
+            Config: {selectedSchedule?.maxStudentsPerSeat || 1} per seat
           </Badge>
           {selectedExam && (
             <span className="ml-auto text-xs text-muted-foreground flex items-center gap-1">
@@ -498,12 +598,12 @@ export default function SeatingPlanPanel() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl border border-border/60 overflow-hidden bg-card"
+          className="rounded-xl border border-border/60 overflow-hidden bg-card print:hidden"
         >
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/40">
-                <TableHead className="w-10 print:hidden">
+                <TableHead className="w-10">
                   <Checkbox
                     checked={allFilteredSelected ? true : someFilteredSelected ? "indeterminate" : false}
                     onCheckedChange={toggleSelectAll}
@@ -513,10 +613,10 @@ export default function SeatingPlanPanel() {
                 </TableHead>
                 <TableHead className="w-12">#</TableHead>
                 <TableHead>Student</TableHead>
-                <TableHead className="print:hidden">Time Block</TableHead>
+                <TableHead>Time Block</TableHead>
                 <TableHead>Room</TableHead>
                 <TableHead>Seat Label</TableHead>
-                <TableHead className="w-12 print:hidden"></TableHead>
+                <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -537,7 +637,7 @@ export default function SeatingPlanPanel() {
                         toggleSelect(alloc.allocationId);
                       }}
                     >
-                      <TableCell onClick={(e) => e.stopPropagation()} className="print:hidden">
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleSelect(alloc.allocationId)}
@@ -559,7 +659,7 @@ export default function SeatingPlanPanel() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="print:hidden">
+                      <TableCell>
                         <Badge variant="outline" className="font-mono text-xs">
                           {new Date(alloc.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -{" "}
                           {new Date(alloc.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -577,7 +677,7 @@ export default function SeatingPlanPanel() {
                           {alloc.seatLabel}
                         </span>
                       </TableCell>
-                      <TableCell className="text-right print:hidden">
+                      <TableCell className="text-right">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -647,7 +747,7 @@ export default function SeatingPlanPanel() {
                                 </Badge>
                               ) : (
                                 <Badge variant={r.isFull ? "destructive" : "secondary"} className="text-[10px] ml-2 font-mono">
-                                  {r.availableSeats} / {r.totalSeats} free
+                                  {r.availableCapacity ?? (r.availableSeats * currentMaxPerSeat)} / {r.totalCapacity ?? (r.totalSeats * currentMaxPerSeat)} free
                                 </Badge>
                               )}
                             </span>
@@ -684,23 +784,41 @@ export default function SeatingPlanPanel() {
                     >
                       {seatGrid.map((seat) => {
                         const isSelected = formSeatId === seat.seatId;
+                        const seatCapacity = seat.capacity ?? currentMaxPerSeat;
+                        const defaultOccupancy = seat.available ? 0 : 1; 
+                        const occupiedCount = seat.occupiedCount ?? defaultOccupancy;
+                        const isFull = seat.isFull ?? (occupiedCount >= seatCapacity);
+
+                        const isEmpty = occupiedCount === 0;
+                        const isPartiallyFilled = occupiedCount > 0 && !isFull;
+
+                        let bgClass = "bg-white dark:bg-zinc-800 border-border/80 text-foreground";
+                        if (isSelected) {
+                          bgClass = "bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20 scale-105";
+                        } else if (isFull) {
+                          bgClass = "bg-red-50 text-red-700/60 border-red-200 cursor-not-allowed text-xs";
+                        } else if (isPartiallyFilled) {
+                          bgClass = "bg-amber-100 text-amber-800 border-amber-400 hover:border-primary/50 cursor-pointer shadow-inner";
+                        } else if (isEmpty) {
+                          bgClass = "bg-green-100/50 text-green-700 border-green-400 hover:border-primary/50 cursor-pointer shadow-sm";
+                        }
+
                         return (
                           <button
                             key={seat.seatId}
-                            disabled={!seat.available}
+                            disabled={isFull}
                             onClick={() => setFormSeatId(seat.seatId)}
-                            title={seat.available ? seat.label : "Occupied - time conflict"}
-                            className={`w-9 h-9 rounded-md flex items-center justify-center text-[10px] font-mono transition-all
-                              ${seat.available && !isSelected ? "bg-white dark:bg-zinc-800 border-2 border-border/80 hover:border-primary/50 text-foreground cursor-pointer" : ""}
-                              ${isSelected ? "bg-primary text-primary-foreground border-2 border-primary shadow-sm ring-2 ring-primary/20 scale-105" : ""}
-                              ${!seat.available ? "bg-muted text-muted-foreground/30 border border-muted-foreground/10 cursor-not-allowed cursor-crosshair" : ""}
-                            `}
+                            title={isFull ? "Seat is full" : `${seat.label} (${occupiedCount}/${seatCapacity} slots)`}
+                            className={`w-10 h-10 rounded-md flex flex-col items-center justify-center text-[10px] font-mono transition-all border-2 ${bgClass}`}
                             style={{
                               gridColumn: seat.columnNumber,
                               gridRow: seat.rowNumber
                             }}
                           >
-                            {seat.label.split("-")[1]}
+                            <span className="font-bold">{seat.label.split("-")[1]}</span>
+                            <span className={`text-[8px] leading-[8px] tracking-tighter ${isSelected ? 'text-primary-foreground/80' : 'text-muted-foreground/80'}`}>
+                              {occupiedCount}/{seatCapacity}
+                            </span>
                           </button>
                         );
                       })}
@@ -745,7 +863,7 @@ export default function SeatingPlanPanel() {
                       <DoorOpen className="w-4 h-4" /> Room Safety Limit:
                     </span>
                     <Badge variant="outline" className="border-blue-500/30 text-blue-600 bg-blue-500/5">
-                      {targetAutoFillRoom.availableSeats} seats open
+                      {targetAutoFillRoom.availableCapacity ?? (targetAutoFillRoom.availableSeats * currentMaxPerSeat)} slots open
                     </Badge>
                   </div>
                   <div className="pt-2 border-t border-primary/10 mt-1">
@@ -790,7 +908,7 @@ export default function SeatingPlanPanel() {
                                 {r.totalSeats === 0 && <span className="text-[10px] uppercase text-destructive font-bold bg-destructive/10 px-1 rounded">No Config</span>}
                               </span>
                               <span className="text-xs text-muted-foreground mt-0.5">
-                                {r.totalSeats === 0 ? "Generate seats in infrastructure first" : `${r.occupiedSeats} in-use • ${r.availableSeats} available block`}
+                                {r.totalSeats === 0 ? "Generate seats in infrastructure first" : `${r.occupiedCapacity ?? (r.occupiedSeats * currentMaxPerSeat)} in-use • ${r.availableCapacity ?? (r.availableSeats * currentMaxPerSeat)} available slots`}
                               </span>
                             </div>
                           </SelectItem>

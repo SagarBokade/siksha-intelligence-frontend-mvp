@@ -36,6 +36,7 @@ export interface ExamScheduleRequestDTO {
   duration: number;           // positive integer (minutes)
   maxMarks: number;           // positive integer
   passingMarks: number;       // positive integer, ≤ maxMarks
+  maxStudentsPerSeat?: number; // 1=single (default), 2=double/bench sharing
 }
 
 export interface ExamScheduleResponseDTO {
@@ -53,6 +54,7 @@ export interface ExamScheduleResponseDTO {
   maxMarks: number;
   passingMarks?: number;
   totalStudents?: number;
+  maxStudentsPerSeat?: number; // 1=single, 2=double/bench sharing
 }
 
 // Question Bank

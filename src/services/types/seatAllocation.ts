@@ -3,10 +3,24 @@ export interface RoomAvailabilityDTO {
   roomUuid: string;
   roomName: string;
   totalSeats: number;
-  occupiedSeats: number;
-  availableSeats: number;
+
+  /** totalSeats × maxStudentsPerSeat */
+  totalCapacity: number;
+  /** Number of active allocations in the time window */
+  occupiedCapacity: number;
+  /** totalCapacity - occupiedCapacity */
+  availableCapacity: number;
+
   isFull: boolean;
+  /** How many students each seat holds for this schedule */
+  maxStudentsPerSeat: number;
   totalStudentsToSeat: number;
+
+  // ── Backward-compatible aliases (serialized from backend) ──
+  /** @deprecated Use occupiedCapacity */
+  occupiedSeats: number;
+  /** @deprecated Use availableCapacity */
+  availableSeats: number;
 }
 
 export interface SeatAvailabilityDTO {
@@ -14,6 +28,17 @@ export interface SeatAvailabilityDTO {
   label: string;
   rowNumber: number;
   columnNumber: number;
+
+  /** Max students this seat can hold */
+  capacity: number;
+  /** Current allocation count */
+  occupiedCount: number;
+  /** capacity - occupiedCount */
+  availableSlots: number;
+  /** True if occupiedCount >= capacity */
+  isFull: boolean;
+
+  /** Backward compat: true if seat has capacity left */
   available: boolean;
   occupiedByStudentName?: string;
 }

@@ -10,7 +10,6 @@ import {
   Loader2,
   ClipboardList,
   Calendar,
-  DoorOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,6 +86,7 @@ interface ScheduleFormState {
   examDate: string;
   startTime: string;
   endTime: string;
+  maxStudentsPerSeat: number;
 }
 
 const emptyForm: ScheduleFormState = {
@@ -96,6 +96,7 @@ const emptyForm: ScheduleFormState = {
   examDate: "",
   startTime: "",
   endTime: "",
+  maxStudentsPerSeat: 1,
 };
 
 function calcDuration(start: string, end: string): number {
@@ -187,7 +188,6 @@ function TimePicker12h({
 export default function ExamSchedulePanel({
   exam,
   onBack,
-  onEnterMarks,
 }: Props) {
   const { data: schedules = [], isLoading } = useGetSchedulesByExam(exam.uuid);
   const createSchedule = useCreateSchedule();
@@ -219,7 +219,7 @@ export default function ExamSchedulePanel({
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ ...emptyForm, examDate: exam.startDate, startTime: "10:00", endTime: "13:00" });
+    setForm({ ...emptyForm, examDate: exam.startDate, startTime: "10:00", endTime: "13:00", maxStudentsPerSeat: 1 });
     setDialogOpen(true);
   };
 
@@ -232,6 +232,7 @@ export default function ExamSchedulePanel({
       examDate: s.examDate,
       startTime: s.startTime ? s.startTime.substring(0, 5) : "",
       endTime: s.endTime ? s.endTime.substring(0, 5) : "",
+      maxStudentsPerSeat: s.maxStudentsPerSeat ?? 1,
     });
     setDialogOpen(true);
   };
@@ -268,6 +269,7 @@ export default function ExamSchedulePanel({
       duration,
       maxMarks: 100,
       passingMarks: 33,
+      maxStudentsPerSeat: form.maxStudentsPerSeat,
     };
 
     console.log("[DEBUG] Schedule form state:", JSON.stringify(form));
@@ -544,6 +546,35 @@ export default function ExamSchedulePanel({
                   value={form.endTime}
                   onChange={(v) => setForm({ ...form, endTime: v })}
                 />
+              </div>
+
+              {/* Seating Type */}
+              <div className="grid gap-1.5">
+                <label className="text-[11px] font-bold text-primary/70 uppercase tracking-widest px-1">
+                  Seating Type
+                </label>
+                <Select
+                  value={String(form.maxStudentsPerSeat)}
+                  onValueChange={(v) => setForm({ ...form, maxStudentsPerSeat: Number(v) })}
+                >
+                  <SelectTrigger className="h-11 border-transparent bg-background shadow-inner focus-visible:ring-primary/20 rounded-xl">
+                    <SelectValue placeholder="Select seating type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">
+                      <span className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-green-500" />
+                        Single Seating (1 per seat)
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="2">
+                      <span className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-500" />
+                        Double Seating (2 per seat)
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
