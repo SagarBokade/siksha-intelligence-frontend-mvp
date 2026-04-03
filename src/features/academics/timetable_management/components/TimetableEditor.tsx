@@ -348,6 +348,10 @@ export function TimetableEditor() {
     };
 
     // animateFillGrid removed (unused)
+    // ─── Auto Generate ─────────────────────────────────────────────────────────
+
+
+
 
     return (
         <DndContext
