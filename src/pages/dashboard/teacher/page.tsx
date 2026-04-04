@@ -37,17 +37,6 @@ export default function TeacherDashboard() {
     }
   }
 
-  // Map profile to IdCardData
-  const idCardData = profile ? {
-    name: `${profile.basicProfile.firstName} ${profile.basicProfile.lastName}`,
-    photoUrl: profile.basicProfile.profileUrl || undefined,
-    enrollmentNumber: profile.staffDetails?.staffSystemId || profile.basicProfile.username,
-    schoolName: 'Siksha Intelligence', // basicProfile doesn't have schoolName, could be hardcoded or from another source
-    staffId: profile.staffDetails?.staffSystemId,
-    jobTitle: profile.staffDetails?.jobTitle,
-    department: profile.staffDetails?.department,
-  } : null
-
   return (
     <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8 font-sans selection:bg-primary/10">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -169,7 +158,7 @@ export default function TeacherDashboard() {
                     >
                       <Loader2 className="w-8 h-8 text-slate-300 animate-spin" />
                     </motion.div>
-                  ) : idCardData && (
+                  ) : profile && (
                     <motion.div 
                       key="id-card"
                       initial={{ opacity: 0, scale: 0.9, rotateY: 90 }}
@@ -177,7 +166,7 @@ export default function TeacherDashboard() {
                       transition={{ type: 'spring', damping: 15 }}
                       className="w-full perspect-1000"
                     >
-                      <IdCardPreview data={idCardData} type="staff" />
+                      <IdCardPreview onDownload={handleDownloadId} />
                     </motion.div>
                   )}
                 </AnimatePresence>
