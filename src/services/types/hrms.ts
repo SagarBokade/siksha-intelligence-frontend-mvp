@@ -1,13 +1,14 @@
 import type { Pageable } from "./common";
 
 // ── Enums ────────────────────────────────────────────────────────────
+export type StaffCategory = "TEACHING" | "NON_TEACHING_ADMIN" | "NON_TEACHING_SUPPORT";
 export type DayType = "WORKING" | "HOLIDAY" | "HALF_DAY" | "RESTRICTED_HOLIDAY" | "EXAM_DAY" | "VACATION";
 export type LeaveStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
 export type HalfDayType = "FIRST_HALF" | "SECOND_HALF";
 export type TeachingWing = "PRIMARY" | "SECONDARY" | "SENIOR_SECONDARY" | "HIGHER_SECONDARY";
 export type SalaryComponentType = "EARNING" | "DEDUCTION";
 export type CalculationMethod = "FIXED" | "PERCENTAGE_OF_BASIC" | "PERCENTAGE_OF_GROSS";
-export type PayrollStatus = "DRAFT" | "PROCESSING" | "PROCESSED" | "APPROVED" | "DISBURSED" | "FAILED";
+export type PayrollStatus = "PROCESSED" | "APPROVED" | "DISBURSED";
 
 // ── Error handling ───────────────────────────────────────────────────
 export interface HrmsFieldErrorMap {
@@ -62,6 +63,28 @@ export interface CalendarMonthSummary {
   halfDays: number;
 }
 
+// ── Staff Designations ───────────────────────────────────────────────
+export interface StaffDesignationCreateUpdateDTO {
+  designationCode: string;
+  designationName: string;
+  category: StaffCategory;
+  description?: string;
+  sortOrder?: number;
+}
+
+export interface StaffDesignationResponseDTO {
+  designationId: number;
+  uuid: string;
+  designationCode: string;
+  designationName: string;
+  category: StaffCategory;
+  description?: string;
+  sortOrder: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ── Leave Type Configuration ─────────────────────────────────────────
 export interface LeaveTypeConfigResponseDTO {
   leaveTypeId: number;
@@ -78,9 +101,12 @@ export interface LeaveTypeConfigResponseDTO {
   requiresDocument: boolean;
   documentRequiredAfterDays?: number;
   isPaid: boolean;
+  applicableCategories?: StaffCategory[];
   applicableGrades?: string[];
   active: boolean;
   sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface LeaveTypeConfigCreateUpdateDTO {
@@ -96,6 +122,7 @@ export interface LeaveTypeConfigCreateUpdateDTO {
   requiresDocument?: boolean;
   documentRequiredAfterDays?: number;
   isPaid?: boolean;
+  applicableCategories?: StaffCategory[];
   applicableGrades?: string[];
   sortOrder?: number;
 }
@@ -103,9 +130,12 @@ export interface LeaveTypeConfigCreateUpdateDTO {
 // ── Leave Applications ───────────────────────────────────────────────
 export interface LeaveApplicationResponseDTO {
   applicationId: number;
-  uuid: string;
+  uuid: string | null;
   staffId: number;
   staffName: string;
+  employeeId: string | null;
+  staffCategory: StaffCategory | null;
+  designationName: string | null;
   leaveTypeId: number;
   leaveTypeCode: string;
   leaveTypeName: string;
@@ -115,16 +145,17 @@ export interface LeaveApplicationResponseDTO {
   isHalfDay: boolean;
   halfDayType?: HalfDayType;
   reason: string;
+  attachmentUrl: string | null;
   status: LeaveStatus;
   appliedOn: string;
-  reviewedByStaffId?: number;
-  reviewedOn?: string;
-  reviewRemarks?: string;
-  attachmentUrl?: string;
+  reviewedByUserId: number | null;
+  reviewedByName: string | null;
+  reviewRemarks: string | null;
+  reviewedAt: string | null;
 }
 
 export interface LeaveApplicationCreateDTO {
-  leaveTypeId: number;
+  leaveTypeRef: string;
   fromDate: string;
   toDate: string;
   isHalfDay?: boolean;
@@ -139,20 +170,17 @@ export interface LeaveReviewDTO {
 
 // ── Leave Balance ────────────────────────────────────────────────────
 export interface LeaveBalanceResponseDTO {
+  balanceId: number;
   staffId: number;
   staffName: string;
-  academicYear: string;
-  balances: LeaveBalanceItemDTO[];
-}
-
-export interface LeaveBalanceItemDTO {
   leaveTypeId: number;
-  leaveCode: string;
-  displayName: string;
+  leaveTypeCode: string;
+  leaveTypeName: string;
+  academicYear: string;
   totalQuota: number;
   used: number;
-  remaining: number;
   carriedForward: number;
+  remaining: number;
 }
 
 export interface LeaveBalanceInitializeDTO {
@@ -173,6 +201,8 @@ export interface StaffGradeResponseDTO {
   minYearsForPromotion?: number;
   description?: string;
   active: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface StaffGradeCreateUpdateDTO {
@@ -188,23 +218,23 @@ export interface StaffGradeCreateUpdateDTO {
 
 export interface StaffGradeAssignmentResponseDTO {
   assignmentId: number;
+  uuid: string;
   staffId: number;
   staffName: string;
   gradeId: number;
   gradeCode: string;
   gradeName: string;
-  teachingWing: TeachingWing;
   effectiveFrom: string;
   effectiveTo?: string;
   promotionOrderRef?: string;
-  promotedBy?: number;
+  promotedByStaffId?: number;
   remarks?: string;
   createdAt: string;
 }
 
 export interface StaffGradeAssignDTO {
-  staffId: number;
-  gradeId: number;
+  staffRef: string;
+  gradeRef: string;
   effectiveFrom: string;
   promotionOrderRef?: string;
   remarks?: string;
@@ -213,6 +243,7 @@ export interface StaffGradeAssignDTO {
 // ── Salary Components ────────────────────────────────────────────────
 export interface SalaryComponentResponseDTO {
   componentId: number;
+  uuid: string;
   componentCode: string;
   componentName: string;
   type: SalaryComponentType;
@@ -222,6 +253,8 @@ export interface SalaryComponentResponseDTO {
   isStatutory: boolean;
   sortOrder: number;
   active: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface SalaryComponentCreateUpdateDTO {
@@ -242,8 +275,10 @@ export interface SalaryTemplateResponseDTO {
   templateName: string;
   description?: string;
   gradeId?: number;
+  gradeCode?: string;
   gradeName?: string;
   academicYear: string;
+  applicableCategory?: StaffCategory;
   components: SalaryTemplateComponentDTO[];
   active: boolean;
   createdAt: string;
@@ -262,53 +297,61 @@ export interface SalaryTemplateComponentDTO {
 export interface SalaryTemplateCreateDTO {
   templateName: string;
   description?: string;
-  gradeId?: number;
+  gradeRef?: string;
   academicYear: string;
-  components: { componentId: number; value: number }[];
+  applicableCategory?: StaffCategory;
+  components: { componentRef: string; value: number }[];
 }
 
 export interface SalaryTemplateUpdateDTO {
   templateName?: string;
   description?: string;
-  gradeId?: number;
+  gradeRef?: string;
   academicYear?: string;
-  components?: { componentId: number; value: number }[];
-  active?: boolean;
+  applicableCategory?: StaffCategory;
+  components?: { componentRef: string; value: number }[];
 }
 
 // ── Staff Salary Mapping ─────────────────────────────────────────────
 export interface StaffSalaryMappingResponseDTO {
   mappingId: number;
+  uuid: string;
   staffId: number;
   staffName: string;
   employeeId: string;
+  gradeId?: number;
   gradeCode?: string;
   templateId: number;
   templateName: string;
   effectiveFrom: string;
   effectiveTo?: string;
-  ctc: number;
-  netPay: number;
-  hasOverrides: boolean;
-  overrides?: ComponentOverrideDTO[];
   remarks?: string;
+  active: boolean;
+  createdAt: string;
+  overrides?: ComponentOverrideDTO[];
 }
 
 export interface ComponentOverrideDTO {
-  componentId: number;
-  componentCode: string;
-  componentName: string;
+  componentRef: string;
   overrideValue: number;
   reason?: string;
 }
 
 export interface StaffSalaryMappingCreateDTO {
-  staffId: number;
-  templateId: number;
+  staffRef: string;
+  templateRef: string;
   effectiveFrom: string;
   effectiveTo?: string;
   remarks?: string;
-  overrides?: { componentId: number; overrideValue: number; reason?: string }[];
+  overrides?: { componentRef: string; overrideValue: number; reason?: string }[];
+}
+
+export interface StaffSalaryMappingBulkCreateDTO {
+  templateRef: string;
+  staffRefs: string[];
+  effectiveFrom: string;
+  effectiveTo?: string;
+  remarks?: string;
 }
 
 export interface ComputedSalaryBreakdownDTO {
@@ -355,25 +398,29 @@ export interface PayrollRunResponseDTO {
   totalDeductions: number;
   totalNet: number;
   processedOn?: string;
-  approvedOn?: string;
-  disbursedOn?: string;
   entries: PayslipSummaryDTO[];
 }
 
 export interface PayslipSummaryDTO {
   payslipId: number;
+  uuid: string;
+  payrollRunId: number;
   staffId: number;
   staffName: string;
   employeeId: string;
   payMonth: number;
   payYear: number;
+  grossPay: number;
+  totalDeductions: number;
   netPay: number;
   status: PayrollStatus;
+  generatedAt: string;
 }
 
 export interface PayslipDetailDTO {
   payslipId: number;
-  runId: number;
+  uuid: string;
+  payrollRunId: number;
   staffId: number;
   staffName: string;
   employeeId: string;
@@ -382,17 +429,16 @@ export interface PayslipDetailDTO {
   gradeCode?: string;
   gradeName?: string;
   department?: string;
-  earnings: PayslipLineItemDTO[];
-  deductions: PayslipLineItemDTO[];
-  grossPay: number;
-  totalDeductions: number;
-  netPay: number;
   totalWorkingDays: number;
   daysPresent: number;
   daysAbsent: number;
   lopDays: number;
+  grossPay: number;
+  totalDeductions: number;
+  netPay: number;
   status: PayrollStatus;
   generatedAt: string;
+  lineItems: PayslipLineItemDTO[];
 }
 
 export interface PayslipLineItemDTO {
@@ -412,8 +458,19 @@ export interface HrmsDashboardSummaryDTO {
   todayPresent: number;
   todayAbsent: number;
   todayOnLeave: number;
+  totalTeachingStaff: number;
+  totalNonTeachingAdmin: number;
+  totalNonTeachingSupport: number;
   gradeDistribution: { gradeCode: string; gradeName: string; count: number }[];
   payrollTrend: { month: string; amount: number }[];
+  categoryAttendance: CategoryAttendanceItem[];
+}
+
+export interface CategoryAttendanceItem {
+  category: StaffCategory;
+  present: number;
+  absent: number;
+  onLeave: number;
 }
 
 // ── Self-service attendance ──────────────────────────────────────────
@@ -423,6 +480,31 @@ export interface StaffAttendanceSummaryDTO {
   presentDays: number;
   absentDays: number;
   leaveDays: number;
+}
+
+// ── Staff Summary (for dropdowns) ────────────────────────────────────
+export interface StaffSummaryDTO {
+  staffId: number;
+  uuid: string;
+  employeeId: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  email?: string;
+  username?: string;
+  profileUrl?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  jobTitle?: string;
+  department?: string;
+  staffType?: string;
+  category?: StaffCategory;
+  designationCode?: string;
+  designationName?: string;
+  hireDate?: string;
+  officeLocation?: string;
+  active: boolean;
+  teachableSubjectIds?: number[];
 }
 
 // ── Query params ─────────────────────────────────────────────────────
@@ -436,4 +518,5 @@ export interface HrmsListParams extends Pageable {
   academicYear?: string;
   year?: number;
   month?: number;
+  category?: StaffCategory;
 }

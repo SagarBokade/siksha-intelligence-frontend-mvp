@@ -34,6 +34,9 @@ export default function HrmsDashboard() {
     { label: "Today Present", value: formatNumber(data?.todayPresent), icon: CheckCircle2 },
     { label: "Today Absent", value: formatNumber(data?.todayAbsent), icon: UserX },
     { label: "Today On Leave", value: formatNumber(data?.todayOnLeave), icon: Calendar },
+    { label: "Teaching Staff", value: formatNumber(data?.totalTeachingStaff), icon: Users2 },
+    { label: "Admin Staff", value: formatNumber(data?.totalNonTeachingAdmin), icon: Users2 },
+    { label: "Support Staff", value: formatNumber(data?.totalNonTeachingSupport), icon: Users2 },
   ];
 
   return (
@@ -89,6 +92,38 @@ export default function HrmsDashboard() {
                   <p className="text-sm font-semibold">{formatCurrency(t.amount)}</p>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {data?.categoryAttendance && data.categoryAttendance.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Category Attendance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto rounded border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-left">
+                  <tr>
+                    <th className="px-3 py-2">Category</th>
+                    <th className="px-3 py-2">Present</th>
+                    <th className="px-3 py-2">Absent</th>
+                    <th className="px-3 py-2">On Leave</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.categoryAttendance.map((item) => (
+                    <tr key={item.category} className="border-t">
+                      <td className="px-3 py-2">{item.category.replace(/_/g, " ")}</td>
+                      <td className="px-3 py-2">{formatNumber(item.present)}</td>
+                      <td className="px-3 py-2">{formatNumber(item.absent)}</td>
+                      <td className="px-3 py-2">{formatNumber(item.onLeave)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>

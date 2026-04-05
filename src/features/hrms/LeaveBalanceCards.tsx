@@ -18,22 +18,23 @@ export default function LeaveBalanceCards() {
     );
   }
 
-  const balances = data?.balances ?? [];
+  const balances = data ?? [];
+  const academicYear = balances[0]?.academicYear;
 
   return (
     <div className="space-y-3">
       <h3 className="text-base font-semibold">
         My Leave Balances
-        {data?.academicYear && (
-          <span className="ml-2 text-sm font-normal text-muted-foreground">({data.academicYear})</span>
+        {academicYear && (
+          <span className="ml-2 text-sm font-normal text-muted-foreground">({academicYear})</span>
         )}
       </h3>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {balances.map((balance) => (
-          <Card key={balance.leaveTypeId}>
+          <Card key={balance.balanceId}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm text-muted-foreground">
-                {balance.displayName} ({balance.leaveCode})
+                {balance.leaveTypeName} ({balance.leaveTypeCode})
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-1 text-sm">

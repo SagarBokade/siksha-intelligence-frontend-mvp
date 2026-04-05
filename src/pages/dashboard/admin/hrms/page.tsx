@@ -6,6 +6,7 @@ import LeaveCalendarDesigner from "@/features/hrms/LeaveCalendarDesigner";
 import LeaveTypeConfig from "@/features/hrms/LeaveTypeConfig";
 import StaffGradingTab from "@/features/hrms/StaffGradingTab";
 import StaffAttendanceTab from "@/features/hrms/StaffAttendanceTab";
+import DesignationManagement from "@/features/hrms/DesignationManagement";
 
 const LeaveManagement = lazy(() => import("@/features/hrms/LeaveManagement"));
 const SalaryComponents = lazy(() => import("@/features/hrms/SalaryComponents"));
@@ -31,10 +32,11 @@ export default function AdminHrmsPage() {
       </div>
 
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:w-[980px] md:grid-cols-7">
+        <TabsList className="grid w-full grid-cols-2 md:w-[1120px] md:grid-cols-8">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="leaves">Leaves</TabsTrigger>
           <TabsTrigger value="leave-workflows">Leave Approval</TabsTrigger>
+          <TabsTrigger value="designations">Designations</TabsTrigger>
           <TabsTrigger value="grades">Staff Grades</TabsTrigger>
           <TabsTrigger value="attendance">Attendance</TabsTrigger>
           <TabsTrigger value="salary-setup">Salary Setup</TabsTrigger>
@@ -56,6 +58,10 @@ export default function AdminHrmsPage() {
           <Suspense fallback={tabLoadingFallback}>
             <LeaveManagement />
           </Suspense>
+        </TabsContent>
+
+        <TabsContent value="designations" className="mt-4">
+          <DesignationManagement />
         </TabsContent>
 
         <TabsContent value="grades" className="mt-4">

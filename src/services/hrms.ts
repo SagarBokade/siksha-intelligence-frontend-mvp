@@ -1,6 +1,6 @@
 import axios from "axios";
 import { api } from "@/lib/axios";
-import type { MessageResponse, PageResponse } from "./types/common";
+import type { PageResponse } from "./types/common";
 import type {
   CalendarEventCreateDTO,
   CalendarEventResponseDTO,
@@ -25,11 +25,16 @@ import type {
   SalaryTemplateCreateDTO,
   SalaryTemplateResponseDTO,
   SalaryTemplateUpdateDTO,
+  StaffCategory,
   StaffAttendanceSummaryDTO,
+  StaffDesignationCreateUpdateDTO,
+  StaffDesignationResponseDTO,
   StaffGradeAssignDTO,
   StaffGradeAssignmentResponseDTO,
   StaffGradeCreateUpdateDTO,
   StaffGradeResponseDTO,
+  StaffSalaryMappingBulkCreateDTO,
+  StaffSummaryDTO,
   StaffSalaryMappingCreateDTO,
   StaffSalaryMappingResponseDTO,
 } from "./types/hrms";
@@ -88,12 +93,12 @@ export const hrmsService = {
     );
   },
 
-  updateCalendarEvent(eventId: number, payload: CalendarEventCreateDTO) {
-    return api.put<CalendarEventResponseDTO>(`${HRMS}/calendar/events/${eventId}`, payload);
+  updateCalendarEvent(identifier: string, payload: CalendarEventCreateDTO) {
+    return api.put<CalendarEventResponseDTO>(`${HRMS}/calendar/events/${identifier}`, payload);
   },
 
-  deleteCalendarEvent(eventId: number) {
-    return api.delete<void>(`${HRMS}/calendar/events/${eventId}`);
+  deleteCalendarEvent(identifier: string) {
+    return api.delete<void>(`${HRMS}/calendar/events/${identifier}`);
   },
 
   getCalendarSummary(academicYear: string) {
@@ -103,24 +108,24 @@ export const hrmsService = {
   },
 
   // ── Leave Types ──────────────────────────────────────────────────
-  listLeaveTypes() {
-    return api.get<LeaveTypeConfigResponseDTO[]>(`${HRMS}/leaves/types`);
+  listLeaveTypes(params?: { category?: StaffCategory }) {
+    return api.get<LeaveTypeConfigResponseDTO[]>(`${HRMS}/leaves/types`, { params });
   },
 
-  getLeaveType(leaveTypeId: number) {
-    return api.get<LeaveTypeConfigResponseDTO>(`${HRMS}/leaves/types/${leaveTypeId}`);
+  getLeaveType(identifier: string) {
+    return api.get<LeaveTypeConfigResponseDTO>(`${HRMS}/leaves/types/${identifier}`);
   },
 
   createLeaveType(payload: LeaveTypeConfigCreateUpdateDTO) {
     return api.post<LeaveTypeConfigResponseDTO>(`${HRMS}/leaves/types`, payload);
   },
 
-  updateLeaveType(leaveTypeId: number, payload: LeaveTypeConfigCreateUpdateDTO) {
-    return api.put<LeaveTypeConfigResponseDTO>(`${HRMS}/leaves/types/${leaveTypeId}`, payload);
+  updateLeaveType(identifier: string, payload: LeaveTypeConfigCreateUpdateDTO) {
+    return api.put<LeaveTypeConfigResponseDTO>(`${HRMS}/leaves/types/${identifier}`, payload);
   },
 
-  deleteLeaveType(leaveTypeId: number) {
-    return api.delete<void>(`${HRMS}/leaves/types/${leaveTypeId}`);
+  deleteLeaveType(identifier: string) {
+    return api.delete<void>(`${HRMS}/leaves/types/${identifier}`);
   },
 
   // ── Leave Applications ───────────────────────────────────────────
@@ -130,42 +135,42 @@ export const hrmsService = {
     });
   },
 
-  getLeaveApplication(applicationId: number) {
-    return api.get<LeaveApplicationResponseDTO>(`${HRMS}/leaves/applications/${applicationId}`);
+  getLeaveApplication(identifier: string) {
+    return api.get<LeaveApplicationResponseDTO>(`${HRMS}/leaves/applications/${identifier}`);
   },
 
   applyLeave(payload: LeaveApplicationCreateDTO) {
     return api.post<LeaveApplicationResponseDTO>(`${HRMS}/leaves/applications`, payload);
   },
 
-  approveLeave(applicationId: number, payload?: LeaveReviewDTO) {
+  approveLeave(identifier: string, payload?: LeaveReviewDTO) {
     return api.post<LeaveApplicationResponseDTO>(
-      `${HRMS}/leaves/applications/${applicationId}/approve`,
+      `${HRMS}/leaves/applications/${identifier}/approve`,
       payload ?? {},
     );
   },
 
-  rejectLeave(applicationId: number, payload?: LeaveReviewDTO) {
+  rejectLeave(identifier: string, payload?: LeaveReviewDTO) {
     return api.post<LeaveApplicationResponseDTO>(
-      `${HRMS}/leaves/applications/${applicationId}/reject`,
+      `${HRMS}/leaves/applications/${identifier}/reject`,
       payload ?? {},
     );
   },
 
-  cancelLeave(applicationId: number, payload?: LeaveReviewDTO) {
+  cancelLeave(identifier: string, payload?: LeaveReviewDTO) {
     return api.post<LeaveApplicationResponseDTO>(
-      `${HRMS}/leaves/applications/${applicationId}/cancel`,
+      `${HRMS}/leaves/applications/${identifier}/cancel`,
       payload ?? {},
     );
   },
 
   // ── Leave Balances ───────────────────────────────────────────────
   getMyLeaveBalance() {
-    return api.get<LeaveBalanceResponseDTO>(`${HRMS}/leaves/balance/me`);
+    return api.get<LeaveBalanceResponseDTO[]>(`${HRMS}/leaves/balance/me`);
   },
 
-  getStaffLeaveBalance(staffId: number, academicYear?: string) {
-    return api.get<LeaveBalanceResponseDTO>(`${HRMS}/leaves/balance/${staffId}`, {
+  getStaffLeaveBalance(staffIdentifier: string, academicYear?: string) {
+    return api.get<LeaveBalanceResponseDTO[]>(`${HRMS}/leaves/balance/${staffIdentifier}`, {
       params: { academicYear },
     });
   },
@@ -183,6 +188,33 @@ export const hrmsService = {
     );
   },
 
+  // ── Staff Designations ──────────────────────────────────────────
+  listDesignations(params?: { category?: StaffCategory; active?: boolean }) {
+    return api.get<StaffDesignationResponseDTO[]>(`${HRMS}/designations`, { params });
+  },
+
+  listStaffForDropdown() {
+    return api.get<PageResponse<StaffSummaryDTO>>("/auth/admin/users/staff", {
+      params: { page: 0, size: 500, sortBy: "firstName", sortDir: "asc" },
+    });
+  },
+
+  getDesignation(identifier: string) {
+    return api.get<StaffDesignationResponseDTO>(`${HRMS}/designations/${identifier}`);
+  },
+
+  createDesignation(payload: StaffDesignationCreateUpdateDTO) {
+    return api.post<StaffDesignationResponseDTO>(`${HRMS}/designations`, payload);
+  },
+
+  updateDesignation(identifier: string, payload: StaffDesignationCreateUpdateDTO) {
+    return api.put<StaffDesignationResponseDTO>(`${HRMS}/designations/${identifier}`, payload);
+  },
+
+  deleteDesignation(identifier: string) {
+    return api.delete<void>(`${HRMS}/designations/${identifier}`);
+  },
+
   // ── Staff Grades ─────────────────────────────────────────────────
   listGrades() {
     return api.get<StaffGradeResponseDTO[]>(`${HRMS}/grades`);
@@ -192,12 +224,12 @@ export const hrmsService = {
     return api.post<StaffGradeResponseDTO>(`${HRMS}/grades`, payload);
   },
 
-  updateGrade(gradeId: number, payload: StaffGradeCreateUpdateDTO) {
-    return api.put<StaffGradeResponseDTO>(`${HRMS}/grades/${gradeId}`, payload);
+  updateGrade(identifier: string, payload: StaffGradeCreateUpdateDTO) {
+    return api.put<StaffGradeResponseDTO>(`${HRMS}/grades/${identifier}`, payload);
   },
 
-  deleteGrade(gradeId: number) {
-    return api.delete<void>(`${HRMS}/grades/${gradeId}`);
+  deleteGrade(identifier: string) {
+    return api.delete<void>(`${HRMS}/grades/${identifier}`);
   },
 
   // ── Grade Assignments ────────────────────────────────────────────
@@ -205,12 +237,12 @@ export const hrmsService = {
     return api.post<StaffGradeAssignmentResponseDTO>(`${HRMS}/grades/assign`, payload);
   },
 
-  getStaffCurrentGrade(staffId: number) {
-    return api.get<StaffGradeAssignmentResponseDTO>(`${HRMS}/grades/staff/${staffId}/current`);
+  getStaffCurrentGrade(staffIdentifier: string) {
+    return api.get<StaffGradeAssignmentResponseDTO>(`${HRMS}/grades/staff/${staffIdentifier}/current`);
   },
 
-  getStaffGradeHistory(staffId: number) {
-    return api.get<StaffGradeAssignmentResponseDTO[]>(`${HRMS}/grades/staff/${staffId}/history`);
+  getStaffGradeHistory(staffIdentifier: string) {
+    return api.get<StaffGradeAssignmentResponseDTO[]>(`${HRMS}/grades/staff/${staffIdentifier}/history`);
   },
 
   listGradeAssignments(params?: HrmsListParams) {
@@ -228,33 +260,33 @@ export const hrmsService = {
     return api.post<SalaryComponentResponseDTO>(`${HRMS}/salary/components`, payload);
   },
 
-  updateSalaryComponent(componentId: number, payload: SalaryComponentCreateUpdateDTO) {
-    return api.put<SalaryComponentResponseDTO>(`${HRMS}/salary/components/${componentId}`, payload);
+  updateSalaryComponent(identifier: string, payload: SalaryComponentCreateUpdateDTO) {
+    return api.put<SalaryComponentResponseDTO>(`${HRMS}/salary/components/${identifier}`, payload);
   },
 
-  deleteSalaryComponent(componentId: number) {
-    return api.delete<void>(`${HRMS}/salary/components/${componentId}`);
+  deleteSalaryComponent(identifier: string) {
+    return api.delete<void>(`${HRMS}/salary/components/${identifier}`);
   },
 
   // ── Salary Templates ─────────────────────────────────────────────
-  listSalaryTemplates() {
-    return api.get<SalaryTemplateResponseDTO[]>(`${HRMS}/salary/templates`);
+  listSalaryTemplates(params?: { category?: StaffCategory }) {
+    return api.get<SalaryTemplateResponseDTO[]>(`${HRMS}/salary/templates`, { params });
   },
 
-  getSalaryTemplate(templateId: number) {
-    return api.get<SalaryTemplateResponseDTO>(`${HRMS}/salary/templates/${templateId}`);
+  getSalaryTemplate(identifier: string) {
+    return api.get<SalaryTemplateResponseDTO>(`${HRMS}/salary/templates/${identifier}`);
   },
 
   createSalaryTemplate(payload: SalaryTemplateCreateDTO) {
     return api.post<SalaryTemplateResponseDTO>(`${HRMS}/salary/templates`, payload);
   },
 
-  updateSalaryTemplate(templateId: number, payload: SalaryTemplateUpdateDTO) {
-    return api.put<SalaryTemplateResponseDTO>(`${HRMS}/salary/templates/${templateId}`, payload);
+  updateSalaryTemplate(identifier: string, payload: SalaryTemplateUpdateDTO) {
+    return api.put<SalaryTemplateResponseDTO>(`${HRMS}/salary/templates/${identifier}`, payload);
   },
 
-  deleteSalaryTemplate(templateId: number) {
-    return api.delete<void>(`${HRMS}/salary/templates/${templateId}`);
+  deleteSalaryTemplate(identifier: string) {
+    return api.delete<void>(`${HRMS}/salary/templates/${identifier}`);
   },
 
   // ── Staff Salary Mappings ────────────────────────────────────────
@@ -264,27 +296,31 @@ export const hrmsService = {
     });
   },
 
-  getStaffSalaryMapping(staffId: number) {
-    return api.get<StaffSalaryMappingResponseDTO>(`${HRMS}/salary/mappings/staff/${staffId}`);
+  getStaffSalaryMapping(staffIdentifier: string) {
+    return api.get<StaffSalaryMappingResponseDTO>(`${HRMS}/salary/mappings/staff/${staffIdentifier}`);
   },
 
   createSalaryMapping(payload: StaffSalaryMappingCreateDTO) {
     return api.post<StaffSalaryMappingResponseDTO>(`${HRMS}/salary/mappings`, payload);
   },
 
-  updateSalaryMapping(mappingId: number, payload: StaffSalaryMappingCreateDTO) {
-    return api.put<StaffSalaryMappingResponseDTO>(`${HRMS}/salary/mappings/${mappingId}`, payload);
+  updateSalaryMapping(identifier: string, payload: StaffSalaryMappingCreateDTO) {
+    return api.put<StaffSalaryMappingResponseDTO>(`${HRMS}/salary/mappings/${identifier}`, payload);
   },
 
-  bulkCreateSalaryMappings(payload: StaffSalaryMappingCreateDTO[]) {
+  deleteSalaryMapping(identifier: string) {
+    return api.delete<void>(`${HRMS}/salary/mappings/${identifier}`);
+  },
+
+  bulkCreateSalaryMappings(payload: StaffSalaryMappingBulkCreateDTO) {
     return api.post<{ totalProcessed: number; successCount: number; failedCount: number; errors: string[] }>(
       `${HRMS}/salary/mappings/bulk`,
       payload,
     );
   },
 
-  getComputedSalary(mappingId: number) {
-    return api.get<ComputedSalaryBreakdownDTO>(`${HRMS}/salary/mappings/${mappingId}/computed`);
+  getComputedSalary(mappingIdentifier: string) {
+    return api.get<ComputedSalaryBreakdownDTO>(`${HRMS}/salary/mappings/${mappingIdentifier}/computed`);
   },
 
   // ── Payroll Runs ─────────────────────────────────────────────────
@@ -292,41 +328,41 @@ export const hrmsService = {
     return api.get<PageResponse<PayrollRunResponseDTO>>(`${HRMS}/payroll/runs`, { params });
   },
 
-  getPayrollRun(runId: number) {
-    return api.get<PayrollRunResponseDTO>(`${HRMS}/payroll/runs/${runId}`);
+  getPayrollRun(runIdentifier: string) {
+    return api.get<PayrollRunResponseDTO>(`${HRMS}/payroll/runs/${runIdentifier}`);
   },
 
   createPayrollRun(payload: PayrollRunCreateDTO) {
     return api.post<PayrollRunResponseDTO>(`${HRMS}/payroll/runs`, payload);
   },
 
-  approvePayrollRun(runId: number) {
-    return api.post<PayrollRunResponseDTO>(`${HRMS}/payroll/runs/${runId}/approve`);
+  approvePayrollRun(runIdentifier: string) {
+    return api.post<PayrollRunResponseDTO>(`${HRMS}/payroll/runs/${runIdentifier}/approve`);
   },
 
-  disbursePayrollRun(runId: number) {
-    return api.post<PayrollRunResponseDTO>(`${HRMS}/payroll/runs/${runId}/disburse`);
+  disbursePayrollRun(runIdentifier: string) {
+    return api.post<PayrollRunResponseDTO>(`${HRMS}/payroll/runs/${runIdentifier}/disburse`);
   },
 
   // ── Payslips (Admin) ─────────────────────────────────────────────
-  listPayslipsByRun(runId: number, params?: HrmsListParams) {
-    return api.get<PageResponse<PayslipSummaryDTO>>(`${HRMS}/payroll/runs/${runId}/payslips`, {
+  listPayslipsByRun(runIdentifier: string, params?: HrmsListParams) {
+    return api.get<PageResponse<PayslipSummaryDTO>>(`${HRMS}/payroll/runs/${runIdentifier}/payslips`, {
       params,
     });
   },
 
-  getPayslip(payslipId: number) {
-    return api.get<PayslipDetailDTO>(`${HRMS}/payroll/payslips/${payslipId}`);
+  getPayslip(payslipIdentifier: string) {
+    return api.get<PayslipDetailDTO>(`${HRMS}/payroll/payslips/${payslipIdentifier}`);
   },
 
-  downloadPayslipPdf(payslipId: number) {
-    return api.get<Blob>(`${HRMS}/payroll/payslips/${payslipId}/pdf`, {
+  downloadPayslipPdf(payslipIdentifier: string) {
+    return api.get<Blob>(`${HRMS}/payroll/payslips/${payslipIdentifier}/pdf`, {
       responseType: "blob",
     });
   },
 
-  listStaffPayslips(staffId: number, params?: HrmsListParams) {
-    return api.get<PageResponse<PayslipSummaryDTO>>(`${HRMS}/payroll/staff/${staffId}/payslips`, {
+  listStaffPayslips(staffIdentifier: string, params?: HrmsListParams) {
+    return api.get<PageResponse<PayslipSummaryDTO>>(`${HRMS}/payroll/staff/${staffIdentifier}/payslips`, {
       params,
     });
   },
@@ -336,12 +372,12 @@ export const hrmsService = {
     return api.get<PageResponse<PayslipSummaryDTO>>(`${HRMS}/payroll/self/payslips`, { params });
   },
 
-  getMyPayslip(payslipId: number) {
-    return api.get<PayslipDetailDTO>(`${HRMS}/payroll/self/payslips/${payslipId}`);
+  getMyPayslip(payslipIdentifier: string) {
+    return api.get<PayslipDetailDTO>(`${HRMS}/payroll/self/payslips/${payslipIdentifier}`);
   },
 
-  downloadMyPayslipPdf(payslipId: number) {
-    return api.get<Blob>(`${HRMS}/payroll/self/payslips/${payslipId}/pdf`, {
+  downloadMyPayslipPdf(payslipIdentifier: string) {
+    return api.get<Blob>(`${HRMS}/payroll/self/payslips/${payslipIdentifier}/pdf`, {
       responseType: "blob",
     });
   },
