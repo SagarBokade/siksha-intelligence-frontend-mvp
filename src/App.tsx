@@ -50,7 +50,9 @@ const AdminTimetableReaderPage = lazy(() => import('@/pages/dashboard/admin/time
 const AdminTimeslotsPage = lazy(() => import('@/pages/dashboard/admin/timeslots/page'))
 const UserDetailsPage = lazy(() => import('@/pages/dashboard/admin/users/[id]/page'))
 const CurriculumPage = lazy(() => import('@/pages/dashboard/admin/curriculum/page'))
+const ExaminationsPage = lazy(() => import('@/pages/dashboard/admin/examinations/page'))
 const AdminRoomsPage = lazy(() => import('@/pages/dashboard/admin/rooms/page'))
+const AdminFinancePage = lazy(() => import('@/pages/dashboard/admin/finance/page'))
 const IdCardsPage = lazy(() => import('@/pages/dashboard/admin/id-cards/page'))
 const AdminHrmsPage = lazy(() => import('@/pages/dashboard/admin/hrms/page'))
 
@@ -134,24 +136,6 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<AdminOverview />} />
-          <Route path="students" element={<StudentsPage />} />
-          <Route path="staff" element={<StaffPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-          <Route path="timetable" element={<AdminTimetablePage />} />
-          <Route path="timetable/editor" element={<AdminTimetableEditorPage />} />
-          <Route path="timetable/editor/:classId/:sectionId" element={<AdminTimetableEditorPage />} />
-          <Route path="timetable/reader" element={<AdminTimetableReaderPage />} />
-          <Route path="timetable/reader/:classId/:sectionId" element={<AdminTimetableReaderPage />} />
-          <Route path="timeslots" element={<AdminTimeslotsPage />} />
-          <Route path="curriculum" element={<CurriculumPage />} />
-          <Route path="examinations" element={<ExaminationsPage />} />
-
-          <Route path="rooms" element={<AdminRoomsPage />} />
-          <Route path="finance" element={<AdminFinancePage />} />
-
-          <Route path="id-cards" element={<IdCardsPage />} />
-          <Route path="users/:type/:id" element={<UserDetailsPage />} />
           <Route index element={withRouteSuspense(<AdminOverview />)} />
           <Route path="students" element={withRouteSuspense(<StudentsPage />)} />
           <Route path="staff" element={withRouteSuspense(<StaffPage />)} />
@@ -163,7 +147,9 @@ export default function App() {
           <Route path="timetable/reader/:classId/:sectionId" element={withRouteSuspense(<AdminTimetableReaderPage />)} />
           <Route path="timeslots" element={withRouteSuspense(<AdminTimeslotsPage />)} />
           <Route path="curriculum" element={withRouteSuspense(<CurriculumPage />)} />
+          <Route path="examinations" element={withRouteSuspense(<ExaminationsPage />)} />
           <Route path="rooms" element={withRouteSuspense(<AdminRoomsPage />)} />
+          <Route path="finance" element={withRouteSuspense(<AdminFinancePage />)} />
           <Route path="hrms" element={withRouteSuspense(<AdminHrmsPage />)} />
           <Route path="id-cards" element={withRouteSuspense(<IdCardsPage />)} />
           <Route path="users/:type/:id" element={withRouteSuspense(<UserDetailsPage />)} />
