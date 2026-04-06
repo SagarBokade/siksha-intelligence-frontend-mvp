@@ -144,6 +144,11 @@ export const TEACHER_NAV_ITEMS: NavItem[] = [
     icon: User,
   },
   {
+    label: "Lecture Logs",
+    path: "/dashboard/teacher/lecture-logs",
+    icon: FileText,
+  },
+  {
     label: "Schedule",
     path: "/dashboard/teacher/schedule",
     icon: CalendarDays,
