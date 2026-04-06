@@ -204,7 +204,7 @@ export function TimetableEditor() {
 
         if (!dragData || !dropData) return;
 
-        const { type, item, targetCellKey } = dragData;
+        const { type, item } = dragData;
         const { cellKey, status } = dropData;
 
         if (type === 'SUBJECT' && (status === 'EMPTY' || status === 'AWAITING_TEACHER' || status === 'LOCKED')) {
