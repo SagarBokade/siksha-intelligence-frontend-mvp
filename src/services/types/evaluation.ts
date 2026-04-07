@@ -5,7 +5,7 @@
 
 export type EvaluationAssignmentStatus = "ASSIGNED" | "IN_PROGRESS" | "COMPLETED";
 
-export type AnswerSheetStatus = "UPLOADED" | "CHECKING" | "DRAFT" | "FINAL";
+export type AnswerSheetStatus = "UPLOADED" | "COMPLETE" | "CHECKING" | "DRAFT" | "FINAL";
 
 export type EvaluationResultStatus = "DRAFT" | "FINAL";
 
@@ -48,6 +48,22 @@ export interface AnswerSheetUploadResponseDTO {
   fileUrl: string;
   status: AnswerSheetStatus;
   createdAt: string;
+}
+
+// ── Image Upload DTOs ───────────────────────────────────────────────
+
+export interface AnswerSheetImagePageResponseDTO {
+  pageNumber: number;
+  imageUrl: string;
+}
+
+export interface AnswerSheetImageGroupResponseDTO {
+  answerSheetId: number;
+  studentId: string;          // UUID
+  examScheduleId: number;
+  status: AnswerSheetStatus;
+  updatedAt: string | null;
+  pages: AnswerSheetImagePageResponseDTO[];
 }
 
 // ── Evaluation Structure DTOs ───────────────────────────────────────

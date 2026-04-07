@@ -5,6 +5,7 @@ import type {
   EvaluationAssignmentResponseDTO,
   TeacherEvaluationStudentResponseDTO,
   AnswerSheetUploadResponseDTO,
+  AnswerSheetImageGroupResponseDTO,
   AnswerEvaluationStructureResponseDTO,
   SaveEvaluationMarksRequestDTO,
   EvaluationResultResponseDTO,
@@ -49,7 +50,7 @@ export const evaluationService = {
     );
   },
 
-  /** POST /teacher/answer-sheets/upload (multipart/form-data) */
+  /** POST /teacher/answer-sheets/upload (multipart/form-data — single PDF) */
   uploadAnswerSheet(scheduleId: number, studentId: string, file: File) {
     const formData = new FormData();
     formData.append("file", file);
@@ -60,6 +61,45 @@ export const evaluationService = {
         params: { scheduleId, studentId },
         headers: { "Content-Type": "multipart/form-data" },
       }
+    );
+  },
+
+  // ── Image-based Answer Sheet APIs ─────────────────────────────────
+
+  /** POST /teacher/answer-sheets/images/upload (multipart — multiple images) */
+  uploadAnswerSheetImages(
+    scheduleId: number,
+    studentId: string,
+    files: File[],
+    pageNumbers?: number[]
+  ) {
+    const formData = new FormData();
+    files.forEach((f) => formData.append("files", f));
+    const params: Record<string, unknown> = { scheduleId, studentId };
+    if (pageNumbers?.length) params.pageNumbers = pageNumbers.join(",");
+    return api.post<AnswerSheetImageGroupResponseDTO>(
+      "/teacher/answer-sheets/images/upload",
+      formData,
+      {
+        params,
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+  },
+
+  /** POST /teacher/answer-sheets/images/complete */
+  completeImageUpload(scheduleId: number, studentId: string) {
+    return api.post<AnswerSheetImageGroupResponseDTO>(
+      "/teacher/answer-sheets/images/complete",
+      null,
+      { params: { scheduleId, studentId } }
+    );
+  },
+
+  /** GET /teacher/answer-sheets/{studentId}/{scheduleId} */
+  getAnswerSheetImages(studentId: string, scheduleId: number) {
+    return api.get<AnswerSheetImageGroupResponseDTO>(
+      `/teacher/answer-sheets/${studentId}/${scheduleId}`
     );
   },
 

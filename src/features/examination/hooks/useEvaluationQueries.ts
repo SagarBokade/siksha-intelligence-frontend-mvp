@@ -24,6 +24,8 @@ export const evaluationKeys = {
     [...evaluationKeys.all, "answer-sheets", scheduleId, page] as const,
   signedUrl: (answerSheetId: number) =>
     [...evaluationKeys.all, "signed-url", answerSheetId] as const,
+  answerSheetImages: (studentId: string, scheduleId: number) =>
+    [...evaluationKeys.all, "images", studentId, scheduleId] as const,
 };
 
 // ── Admin Queries ───────────────────────────────────────────────────
@@ -101,6 +103,22 @@ export const useAnswerSheetAnnotations = (
     refetchOnWindowFocus: false,
   });
 
+// ── Image Upload Queries ────────────────────────────────────────────
+
+export const useAnswerSheetImages = (
+  studentId: string,
+  scheduleId: number,
+  enabled = true
+) =>
+  useQuery({
+    queryKey: evaluationKeys.answerSheetImages(studentId, scheduleId),
+    queryFn: async () =>
+      (await evaluationService.getAnswerSheetImages(studentId, scheduleId)).data,
+    enabled: enabled && !!studentId && !!scheduleId,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+  });
+
 // ── Teacher Mutations ───────────────────────────────────────────────
 
 export const useUploadAnswerSheet = () => {
@@ -118,6 +136,58 @@ export const useUploadAnswerSheet = () => {
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({
         queryKey: evaluationKeys.students(vars.scheduleId),
+      });
+    },
+  });
+};
+
+export const useUploadAnswerSheetImages = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      scheduleId,
+      studentId,
+      files,
+      pageNumbers,
+    }: {
+      scheduleId: number;
+      studentId: string;
+      files: File[];
+      pageNumbers?: number[];
+    }) =>
+      evaluationService
+        .uploadAnswerSheetImages(scheduleId, studentId, files, pageNumbers)
+        .then((r) => r.data),
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({
+        queryKey: evaluationKeys.students(vars.scheduleId),
+      });
+      qc.invalidateQueries({
+        queryKey: evaluationKeys.answerSheetImages(vars.studentId, vars.scheduleId),
+      });
+    },
+  });
+};
+
+export const useCompleteImageUpload = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      scheduleId,
+      studentId,
+    }: {
+      scheduleId: number;
+      studentId: string;
+    }) =>
+      evaluationService
+        .completeImageUpload(scheduleId, studentId)
+        .then((r) => r.data),
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({
+        queryKey: evaluationKeys.students(vars.scheduleId),
+      });
+      qc.invalidateQueries({
+        queryKey: evaluationKeys.answerSheetImages(vars.studentId, vars.scheduleId),
       });
     },
   });
@@ -173,3 +243,4 @@ export const useCreateAnnotation = () => {
     },
   });
 };
+
