@@ -42,6 +42,7 @@ const TeacherLectureLogsPage = lazy(() => import('@/pages/dashboard/teacher/lect
 
 const StudentDashboard = lazy(() => import('@/pages/dashboard/student/page'))
 const StudentProfilePage = lazy(() => import('@/pages/dashboard/student/profile/page'))
+const StudentTimetablePage = lazy(() => import('@/pages/dashboard/student/timetable/page'))
 
 const SuperAdminOverviewPage = lazy(() => import('@/pages/dashboard/super-admin/overview/page'))
 const SuperAdminUsersPage = lazy(() => import('@/pages/dashboard/super-admin/users/page'))
@@ -173,6 +174,7 @@ export default function App() {
         >
           <Route index element={withRouteSuspense(<StudentDashboard />)} />
           <Route path="profile" element={withRouteSuspense(<StudentProfilePage />)} />
+          <Route path="timetable" element={withRouteSuspense(<StudentTimetablePage />)} />
         </Route>
 
         {/* Redirect all unknown routes to home (which will redirect to login if not authenticated) */}

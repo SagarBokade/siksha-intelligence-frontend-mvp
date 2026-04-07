@@ -74,6 +74,11 @@ export const STUDENT_NAV_ITEMS: NavItem[] = [
     icon: User,
   },
   {
+    label: "Timetable",
+    path: "/dashboard/student/timetable",
+    icon: CalendarDays,
+  },
+  {
     label: "Academics",
     path: "/dashboard/student/academics",
     icon: BookOpen,
