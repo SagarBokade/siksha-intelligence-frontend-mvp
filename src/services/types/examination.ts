@@ -42,6 +42,7 @@ export interface ExamScheduleRequestDTO {
   passingMarks: number;       // positive integer, ≤ maxMarks
   maxStudentsPerSeat?: number; // 1=single (default), 2=double/bench sharing
   seatSide?: "LEFT" | "RIGHT"; // Side for double seating
+  roomNumber?: string;
 }
 
 export interface ExamScheduleResponseDTO {
@@ -63,6 +64,7 @@ export interface ExamScheduleResponseDTO {
   totalStudents?: number;
   maxStudentsPerSeat?: number; // 1=single, 2=double/bench sharing
   seatSide?: "LEFT" | "RIGHT";
+  roomNumber?: string;
 }
 
 // Question Bank

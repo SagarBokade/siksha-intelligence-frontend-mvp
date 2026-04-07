@@ -10,6 +10,7 @@ import {
   Shield,
   Armchair,
   FileText,
+  FileCheck,
 } from "lucide-react";
 import ExamDashboardPanel from "@/features/examination/components/ExamDashboardPanel";
 import ExamTemplatePanel from "@/features/examination/components/ExamTemplatePanel";
@@ -21,6 +22,7 @@ import QuestionBankPanel from "@/features/examination/components/QuestionBankPan
 import PastPapersPanel from "@/features/examination/components/PastPapersPanel";
 import InvigilationPanel from "@/features/examination/components/InvigilationPanel";
 import SeatingPlanPanel from "@/features/examination/components/SeatingPlanPanel";
+import EvaluationAssignmentsPanel from "@/features/examination/components/EvaluationAssignmentsPanel";
 import {
   useGetAllGradeSystems,
   useGetAllQuestions,
@@ -31,7 +33,7 @@ import type {
   ExamScheduleResponseDTO,
 } from "@/services/types/examination";
 
-type ActiveTab = "dashboard" | "exams" | "templates" | "grades" | "questions" | "papers" | "invigilation" | "seating";
+type ActiveTab = "dashboard" | "exams" | "templates" | "grades" | "questions" | "papers" | "invigilation" | "seating" | "evaluation";
 
 // Sub-view management for drill-down navigation
 type SubView =
@@ -87,6 +89,11 @@ const tabs: {
     id: "seating",
     label: "Seating Plan",
     icon: Armchair,
+  },
+  {
+    id: "evaluation",
+    label: "Evaluation",
+    icon: FileCheck,
   },
 ];
 
@@ -287,6 +294,17 @@ export default function ExaminationsPage() {
           transition={{ duration: 0.2 }}
         >
           <SeatingPlanPanel />
+        </motion.div>
+      )}
+
+      {activeTab === "evaluation" && (
+        <motion.div
+          key="evaluation"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <EvaluationAssignmentsPanel />
         </motion.div>
       )}
     </div>
