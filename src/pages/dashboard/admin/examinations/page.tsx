@@ -225,6 +225,7 @@ export default function ExaminationsPage() {
               onEnterMarks={(schedule) =>
                 handleEnterMarks(subView.exam, schedule)
               }
+              onNavigateToTemplates={() => handleTabChange("templates")}
             />
           )}
           {subView.kind === "marks" && (
