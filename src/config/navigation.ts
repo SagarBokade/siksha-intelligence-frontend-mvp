@@ -15,6 +15,7 @@ import {
   ClipboardCheck,
   FileCheck,
   Award,
+  Archive,
 
   Clock,
   DoorOpen,
@@ -103,6 +104,11 @@ export const STUDENT_NAV_ITEMS: NavItem[] = [
     label: "Notice Board",
     path: "/dashboard/student/notices",
     icon: Bell,
+  },
+  {
+    label: "Past Papers",
+    path: "/dashboard/student/past-papers",
+    icon: Archive,
   },
 ];
 
