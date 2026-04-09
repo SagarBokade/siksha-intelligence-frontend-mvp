@@ -162,7 +162,7 @@ export default function ExaminationsPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="flex flex-wrap gap-1.5 p-1 bg-muted/60 rounded-xl border border-border/40 w-full print:hidden"
+        className="flex overflow-x-auto gap-1 p-1 bg-muted/60 rounded-xl border border-border/40 w-fit max-w-full print:hidden scroll-smooth [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/40 [&::-webkit-scrollbar-thumb]:rounded-full pb-1"
       >
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -171,7 +171,7 @@ export default function ExaminationsPage() {
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+              className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap shrink-0 ${
                 isActive
                   ? "bg-background text-foreground shadow-sm border border-border/50"
                   : "text-muted-foreground hover:text-foreground hover:bg-background/50"
