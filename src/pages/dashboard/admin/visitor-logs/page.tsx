@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getVisitorLogs, type VisitorLog } from "@/services/visitor";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 

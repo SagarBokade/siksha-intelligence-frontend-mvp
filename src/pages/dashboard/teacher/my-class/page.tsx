@@ -41,7 +41,7 @@ export default function TeacherMyClassPage() {
 
       <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         <h2 className="mb-3 text-base font-semibold">Today&apos;s Attendance</h2>
-        <QuickAttendanceGrid students={students?.content ?? []} sectionUuid={homeroom.sectionUuid ?? ""} />
+        <QuickAttendanceGrid students={students?.content ?? []} sectionUuid={homeroom.sectionUuid ?? ""} staffUuid={""} />
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">

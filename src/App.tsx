@@ -10,8 +10,8 @@ import { ProtectedRoute } from '@/routes/ProtectedRoute'
 import { RoleBasedRoute } from '@/routes/RoleBasedRoute'
 import SessionExpiredDialog from '@/components/common/SessionExpiredDialog'
 // SuperAdmin
-import SuperAdminLayout from '@/components/layout/SuperAdminLayout'
-import SecurityGuardLayout from '@/components/layout/SecurityGuardLayout'
+import SuperAdminLayout from '@/components/layout/SuperAdminLayout';
+import SecurityGuardLayout from '@/components/layout/SecurityGuardLayout';
 
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'))
 const HomePage = lazy(() => import('@/pages/HomePage'))
