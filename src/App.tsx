@@ -11,6 +11,7 @@ import { RoleBasedRoute } from '@/routes/RoleBasedRoute'
 import SessionExpiredDialog from '@/components/common/SessionExpiredDialog'
 // SuperAdmin
 import SuperAdminLayout from '@/components/layout/SuperAdminLayout'
+import SecurityGuardLayout from '@/components/layout/SecurityGuardLayout'
 
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'))
 const HomePage = lazy(() => import('@/pages/HomePage'))
@@ -43,6 +44,10 @@ const TeacherLectureLogsPage = lazy(() => import('@/pages/dashboard/teacher/lect
 const StudentDashboard = lazy(() => import('@/pages/dashboard/student/page'))
 const StudentProfilePage = lazy(() => import('@/pages/dashboard/student/profile/page'))
 const StudentTimetablePage = lazy(() => import('@/pages/dashboard/student/timetable/page'))
+
+const SecurityGuardDashboard = lazy(() => import('@/pages/dashboard/security-guard/page'))
+const SecurityGuardVisitorManagement = lazy(() => import('@/pages/dashboard/security-guard/visitor-management/page'))
+const AdminVisitorLogsPage = lazy(() => import('@/pages/dashboard/admin/visitor-logs/page'))
 
 const SuperAdminOverviewPage = lazy(() => import('@/pages/dashboard/super-admin/overview/page'))
 const SuperAdminUsersPage = lazy(() => import('@/pages/dashboard/super-admin/users/page'))
@@ -135,6 +140,7 @@ export default function App() {
           <Route path="hrms" element={withRouteSuspense(<AdminHrmsPage />)} />
           <Route path="id-cards" element={withRouteSuspense(<IdCardsPage />)} />
           <Route path="users/:type/:id" element={withRouteSuspense(<UserDetailsPage />)} />
+          <Route path="visitor-logs" element={withRouteSuspense(<AdminVisitorLogsPage />)} />
           {/* Catch-all for unknown admin sub-routes */}
           <Route path="*" element={<Navigate to="/dashboard/admin" replace />} />
         </Route>
@@ -175,6 +181,22 @@ export default function App() {
           <Route index element={withRouteSuspense(<StudentDashboard />)} />
           <Route path="profile" element={withRouteSuspense(<StudentProfilePage />)} />
           <Route path="timetable" element={withRouteSuspense(<StudentTimetablePage />)} />
+        </Route>
+
+        {/* Security Guard Dashboard */}
+        <Route
+          path="/dashboard/security-guard"
+          element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['SUPER_ADMIN', 'ADMIN', 'SECURITY_GUARD']}>
+                <SecurityGuardLayout />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={withRouteSuspense(<SecurityGuardDashboard />)} />
+          <Route path="visitor-management" element={withRouteSuspense(<SecurityGuardVisitorManagement />)} />
+          <Route path="*" element={<Navigate to="/dashboard/security-guard" replace />} />
         </Route>
 
         {/* Redirect all unknown routes to home (which will redirect to login if not authenticated) */}

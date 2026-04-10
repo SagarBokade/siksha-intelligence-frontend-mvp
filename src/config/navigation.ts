@@ -59,6 +59,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
 
   { label: "Settings", path: "/dashboard/admin/settings", icon: Settings },
   { label: "ID Cards", path: "/dashboard/admin/id-cards", icon: CreditCard },
+  { label: "Visitor Logs", path: "/dashboard/admin/visitor-logs", icon: ClipboardList },
 ];
 
 export const STUDENT_NAV_ITEMS: NavItem[] = [
@@ -162,5 +163,19 @@ export const TEACHER_NAV_ITEMS: NavItem[] = [
     label: "My HR",
     path: "/dashboard/teacher/my-hr",
     icon: Briefcase,
+  },
+];
+
+export const SECURITY_GUARD_NAV_ITEMS: NavItem[] = [
+  {
+    label: "Overview",
+    path: "/dashboard/security-guard",
+    icon: LayoutDashboard,
+    end: true,
+  },
+  {
+    label: "Visitor Management",
+    path: "/dashboard/security-guard/visitor-management",
+    icon: Shield,
   },
 ];
