@@ -420,5 +420,15 @@ export const examinationService = {
       responseType: "blob",
     });
   },
+
+  /** GET /admin/examination/seat-allocation/schedule/:examScheduleId/print */
+  downloadSeatingPlanPdf(examScheduleId: number) {
+    return api.get(
+      `/admin/examination/seat-allocation/schedule/${examScheduleId}/print`,
+      {
+        responseType: "blob",
+      }
+    );
+  },
 };
 

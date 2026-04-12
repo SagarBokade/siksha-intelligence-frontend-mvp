@@ -74,6 +74,7 @@ interface StaffPage {
 export default function InvigilationPanel() {
   // ── Exam selection state ────────────────────────────────────────
   const [selectedExamUuid, setSelectedExamUuid] = useState<string>("");
+  const [selectedClassUuid, setSelectedClassUuid] = useState<string>("");
   const [selectedScheduleId, setSelectedScheduleId] = useState<number>(0);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -119,6 +120,23 @@ export default function InvigilationPanel() {
     (e) => e.uuid === selectedExamUuid
   );
 
+  // Derive unique classes from schedules
+  const availableClasses = useMemo(() => {
+    const classMap = new Map<string, { uuid: string; name: string }>();
+    schedules.forEach((s) => {
+      if (s.classId && !classMap.has(s.classId)) {
+        classMap.set(s.classId, { uuid: s.classId, name: s.className });
+      }
+    });
+    return Array.from(classMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [schedules]);
+
+  // Filter schedules by selected class
+  const filteredSchedulesByClass = useMemo(() => {
+    if (!selectedClassUuid) return [];
+    return schedules.filter((s) => s.classId === selectedClassUuid);
+  }, [schedules, selectedClassUuid]);
+
   const filteredInvigilations = useMemo(() => {
     if (!searchTerm) return invigilations;
     const q = searchTerm.toLowerCase();
@@ -133,6 +151,13 @@ export default function InvigilationPanel() {
   // ── Handlers ────────────────────────────────────────────────────
   const handleExamChange = (uuid: string) => {
     setSelectedExamUuid(uuid);
+    setSelectedClassUuid("");
+    setSelectedScheduleId(0);
+    setSearchTerm("");
+  };
+
+  const handleClassChange = (uuid: string) => {
+    setSelectedClassUuid(uuid);
     setSelectedScheduleId(0);
     setSearchTerm("");
   };
@@ -214,8 +239,7 @@ export default function InvigilationPanel() {
         )}
       </div>
 
-      {/* ── Selectors Row ───────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:hidden">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 print:hidden">
         {/* Exam selector */}
         <div className="grid gap-1.5">
           <label className="text-sm font-medium text-muted-foreground">
@@ -235,6 +259,29 @@ export default function InvigilationPanel() {
           </Select>
         </div>
 
+        {/* Class selector */}
+        <div className="grid gap-1.5">
+          <label className="text-sm font-medium text-muted-foreground">
+            Select Class
+          </label>
+          <Select
+            value={selectedClassUuid}
+            onValueChange={handleClassChange}
+            disabled={!selectedExamUuid || availableClasses.length === 0}
+          >
+            <SelectTrigger id="invigilation-class-select">
+              <SelectValue placeholder={availableClasses.length === 0 ? "No classes" : "Choose class…"} />
+            </SelectTrigger>
+            <SelectContent>
+              {availableClasses.map((c) => (
+                <SelectItem key={c.uuid} value={c.uuid}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Schedule selector */}
         <div className="grid gap-1.5">
           <label className="text-sm font-medium text-muted-foreground">
@@ -243,15 +290,15 @@ export default function InvigilationPanel() {
           <Select
             value={selectedScheduleId ? String(selectedScheduleId) : ""}
             onValueChange={handleScheduleChange}
-            disabled={!selectedExamUuid || schedules.length === 0}
+            disabled={!selectedClassUuid || filteredSchedulesByClass.length === 0}
           >
             <SelectTrigger id="invigilation-schedule-select">
-              <SelectValue placeholder={schedules.length === 0 ? "No schedules" : "Choose schedule…"} />
+              <SelectValue placeholder={filteredSchedulesByClass.length === 0 ? "No schedules" : "Choose schedule…"} />
             </SelectTrigger>
             <SelectContent>
-              {schedules.map((s) => (
+              {filteredSchedulesByClass.map((s) => (
                 <SelectItem key={s.scheduleId} value={String(s.scheduleId)}>
-                  {s.subjectName} — {s.className}
+                  {s.subjectName}
                   {s.sectionName ? ` (${s.sectionName})` : ""} ·{" "}
                   {new Date(s.examDate).toLocaleDateString("en-IN", {
                     day: "2-digit",
