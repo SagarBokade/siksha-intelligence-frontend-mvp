@@ -187,11 +187,6 @@ export const TEACHER_NAV_ITEMS: NavItem[] = [
     icon: FileText,
   },
   {
-    label: "Schedule",
-    path: "/dashboard/teacher/schedule",
-    icon: CalendarDays,
-  },
-  {
     label: "My HR",
     path: "/dashboard/teacher/my-hr",
     icon: Briefcase,
