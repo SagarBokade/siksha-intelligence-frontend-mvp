@@ -206,7 +206,7 @@ export default function App() {
           path="/dashboard/parent"
           element={
             <ProtectedRoute>
-              <RoleBasedRoute allowedRoles={['SUPER_ADMIN', 'ADMIN', 'PARENT']}>
+              <RoleBasedRoute allowedRoles={['SUPER_ADMIN', 'ADMIN', 'PARENT', 'GUARDIAN']}>
                 <ParentLayout />
               </RoleBasedRoute>
             </ProtectedRoute>

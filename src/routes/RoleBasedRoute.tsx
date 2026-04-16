@@ -53,6 +53,7 @@ export function RoleBasedRoute({ children, allowedRoles }: RoleBasedRouteProps) 
       TEACHER: '/dashboard/teacher',
       STUDENT: '/dashboard/student',
       PARENT: '/dashboard/parent',
+      GUARDIAN: '/dashboard/parent',
     }
 
     // Find first matching role's dashboard (normalize role before lookup)
