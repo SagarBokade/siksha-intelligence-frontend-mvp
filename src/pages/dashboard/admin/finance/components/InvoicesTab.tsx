@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { Plus, Download, Receipt, DownloadCloud, CheckCircle2, Clock, AlertTriangle, X, FileText, MoreHorizontal, Ban, TimerReset, ChevronLeft, ChevronRight, Filter } from "lucide-react";
@@ -81,10 +81,15 @@ export function InvoicesTab({ invoices, loading, onRefresh }: InvoicesTabProps) 
 
   const [classes, setClasses] = useState<AcademicClassResponseDto[]>([]);
 
-  // Fetch classes when dialog opens
-  if (isInvoiceDialogOpen && classes.length === 0) {
-    academicClassService.getAllClasses().then(setClasses).catch(() => { });
-  }
+  // BUG FIX 3: Move the class-fetch into a useEffect.
+  // Calling an async API directly in the render body is a React anti-pattern:
+  // it triggers on every render, causes memory-leak warnings, and can cause
+  // an infinite re-render loop if the state update itself triggers a re-render.
+  useEffect(() => {
+    if (isInvoiceDialogOpen) {
+      academicClassService.getAllClasses().then(setClasses).catch(() => {});
+    }
+  }, [isInvoiceDialogOpen]);
 
   const handleGenerateInvoice = async () => {
     if (generationMode === "single") {
@@ -212,8 +217,11 @@ export function InvoicesTab({ invoices, loading, onRefresh }: InvoicesTabProps) 
       });
 
       const options = {
-        key: orderData.clientSecret, // Backend maps Key ID to clientSecret
-        amount: (invoice.totalAmount - (invoice.paidAmount || 0)) * 100,
+        key: orderData.clientSecret, // Backend maps Key ID to clientSecret field
+        // BUG FIX 4: Use Math.round() to produce a guaranteed integer number of
+        // paise and prevent floating-point drift (e.g. 500.10 * 100 = 50009.999...).
+        // Razorpay rejects non-integer amounts.
+        amount: Math.round((invoice.totalAmount - (invoice.paidAmount || 0)) * 100),
         currency: "INR",
         name: "Shiksha Intelligence",
         description: `Fee Payment for Invoice #${invoice.invoiceNumber}`,
