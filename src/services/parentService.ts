@@ -1,161 +1,153 @@
+import { api } from '@/lib/axios';
 import type { ChildSummary, ParentDashboardData } from "./types/parent";
 
-// ── Parent / Guardian Portal — Mock Service ──────────────────────────
-
-const PAUSE = (ms: number) => new Promise(res => setTimeout(res, ms));
-
-const MOCK_CHILDREN: ChildSummary[] = [
-  {
-    childId: "child-1",
-    firstName: "Aarav",
-    lastName: "Sharma",
-    fullName: "Aarav Sharma",
-    className: "Class 10",
-    section: "A",
-    rollNumber: "10",
-    profileUrl: "https://i.pravatar.cc/150?u=aarav",
-  },
-  {
-    childId: "child-2",
-    firstName: "Diya",
-    lastName: "Sharma",
-    fullName: "Diya Sharma",
-    className: "Class 8",
-    section: "B",
-    rollNumber: "15",
-    profileUrl: "https://i.pravatar.cc/150?u=diya",
-  }
-];
-
-const generateDashboardData = (childId: string): ParentDashboardData => {
-  const child = MOCK_CHILDREN.find(c => c.childId === childId) || MOCK_CHILDREN[0];
-  
-  return {
-    child,
-    attendance: {
-      totalDays: 120,
-      presentDays: 105,
-      absentDays: 10,
-      lateDays: 5,
-      attendancePercentage: 87.5,
-      todayStatus: "PRESENT",
-      monthlyBreakdown: [
-        { month: "Jan", present: 20, absent: 2, late: 0 },
-        { month: "Feb", present: 19, absent: 1, late: 0 },
-        { month: "Mar", present: 21, absent: 0, late: 2 },
-      ]
-    },
-    performance: {
-      currentGpa: 8.5,
-      maxGpa: 10,
-      classAverage: 7.2,
-      rank: 5,
-      totalStudents: 40,
-      trend: [
-        { exam: "Unit 1", gpa: 8.0, classAvg: 7.0 },
-        { exam: "Mid Term", gpa: 8.2, classAvg: 7.1 },
-        { exam: "Unit 2", gpa: 8.5, classAvg: 7.2 },
-      ],
-      subjects: [
-        { subject: "Mathematics", marks: 85, maxMarks: 100, grade: "A2", teacherRemarks: "Good progress" },
-        { subject: "Science", marks: 92, maxMarks: 100, grade: "A1", teacherRemarks: "Excellent" },
-        { subject: "English", marks: 78, maxMarks: 100, grade: "B1", teacherRemarks: "Can do better" },
-      ]
-    },
-    feesDue: {
-      totalDue: 15000,
-      currency: "INR",
-      nextDueDate: "2026-05-15",
-      feeBreakdown: [
-        { feeType: "Tuition Fee (Q1)", amount: 12000, dueDate: "2026-05-15", status: "PENDING" },
-        { feeType: "Transport Fee", amount: 3000, dueDate: "2026-05-15", status: "PENDING" },
-      ],
-      recentPayments: [
-        { paymentId: "PAY101", amount: 15000, date: "2026-04-10", method: "Online", receiptUrl: "#" }
-      ]
-    },
-    homeworkPending: {
-      totalPending: 2,
-      totalSubmitted: 15,
-      totalOverdue: 0,
-      assignments: [
-        {
-          assignmentId: "hw-1",
-          subject: "Mathematics",
-          title: "Algebra Worksheet",
-          description: "Complete exercises 1 to 10 on page 45.",
-          dueDate: "2026-04-12T23:59:00Z",
-          status: "PENDING",
-          teacherName: "Mr. Gupta",
-          seenByParent: false
-        },
-        {
-          assignmentId: "hw-2",
-          subject: "Science",
-          title: "Physics Lab Report",
-          description: "Submit the report for the pendulum experiment.",
-          dueDate: "2026-04-15T23:59:00Z",
-          status: "PENDING",
-          teacherName: "Ms. Verma",
-          seenByParent: true
-        }
-      ]
-    },
-    recentNotifications: [
-      {
-        notificationId: "notif-1",
-        title: "Upcoming Parent-Teacher Meeting",
-        message: "PTM is scheduled for this Saturday at 10 AM.",
-        category: "EVENT",
-        timestamp: new Date(Date.now() - 3600000).toISOString(),
-        isRead: false
-      },
-      {
-        notificationId: "notif-2",
-        title: "Fee Reminder",
-        message: "Quarter 1 fees are due next month.",
-        category: "FEES",
-        timestamp: new Date(Date.now() - 86400000).toISOString(),
-        isRead: true
-      }
-    ]
-  };
-};
+// ── Parent / Guardian Portal — Service ──────────────────────────
 
 export const parentService = {
   /** GET /parent/children */
   async getMyChildren() {
-    await PAUSE(400); // Simulate network latency
-    return { data: MOCK_CHILDREN };
+    const response = await api.get('/guardian/dashboard/overview');
+    const overviews = response.data;
+    const children: ChildSummary[] = overviews.map((o: any) => {
+      const parts = o.profile.courseOrClass ? o.profile.courseOrClass.split(' - Section ') : [];
+      const className = parts[0] || '';
+      const section = parts[1] || '';
+      
+      const nameParts = o.profile.fullName ? o.profile.fullName.split(' ') : [];
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      return {
+        childId: String(o.profile.studentId),
+        firstName,
+        lastName,
+        fullName: o.profile.fullName,
+        className,
+        section,
+        rollNumber: o.profile.enrollmentNumber || '',
+        profileUrl: o.profile.profileUrl
+      };
+    });
+    
+    return { data: children };
   },
 
   /** GET /parent/dashboard?childId= */
   async getDashboardSummary(childId: string) {
-    await PAUSE(600);
-    return { data: generateDashboardData(childId) };
+    const [overviewRes, intelligenceRes] = await Promise.all([
+      api.get('/guardian/dashboard/overview'),
+      api.get('/guardian/dashboard/intelligence')
+    ]);
+
+    const overviews = overviewRes.data;
+    const intelligences = intelligenceRes.data;
+
+    const overview = overviews.find((o: any) => String(o.profile.studentId) === childId);
+    const intelligence = intelligences.find((i: any) => String(i.profile.studentId) === childId);
+
+    if (!overview || !intelligence) {
+      throw new Error("Child dashboard not found");
+    }
+
+    const parts = overview.profile.courseOrClass ? overview.profile.courseOrClass.split(' - Section ') : [];
+    const className = parts[0] || '';
+    const section = parts[1] || '';
+    
+    const nameParts = overview.profile.fullName ? overview.profile.fullName.split(' ') : [];
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    const child: ChildSummary = {
+      childId: String(overview.profile.studentId),
+      firstName,
+      lastName,
+      fullName: overview.profile.fullName,
+      className,
+      section,
+      rollNumber: overview.profile.enrollmentNumber || '',
+      profileUrl: overview.profile.profileUrl
+    };
+
+    const dashboardData: ParentDashboardData = {
+      child,
+      attendance: {
+        totalDays: intelligence.academicPulse.predictiveAttendance.totalClasses,
+        presentDays: intelligence.academicPulse.predictiveAttendance.attendedClasses,
+        absentDays: intelligence.academicPulse.predictiveAttendance.totalClasses - intelligence.academicPulse.predictiveAttendance.attendedClasses,
+        lateDays: 0,
+        attendancePercentage: intelligence.academicPulse.predictiveAttendance.percentage,
+        todayStatus: "NOT_MARKED", // Needs dedicated today attendance logic if applicable
+        monthlyBreakdown: []
+      },
+      performance: {
+        currentGpa: overview.kpis.currentCgpa,
+        maxGpa: 10,
+        classAverage: 0, // Fallback
+        rank: 0,
+        totalStudents: 0,
+        trend: overview.performanceTrend.map((t: any) => ({
+          exam: t.term,
+          gpa: t.score,
+          classAvg: 0
+        })),
+        subjects: []
+      },
+      feesDue: {
+        totalDue: intelligence.financeHealth.totalDue || 0,
+        currency: "INR",
+        nextDueDate: intelligence.financeHealth.earliestDueDate || new Date().toISOString(),
+        feeBreakdown: [],
+        recentPayments: []
+      },
+      homeworkPending: {
+        totalPending: overview.kpis.pendingAssignmentsCount,
+        totalSubmitted: 0,
+        totalOverdue: 0,
+        assignments: overview.pendingAssignments.map((a: any) => ({
+          assignmentId: String(a.id),
+          subject: a.subject,
+          title: a.title,
+          description: "",
+          dueDate: a.dueDate,
+          status: "PENDING",
+          teacherName: "",
+          seenByParent: false
+        }))
+      },
+      recentNotifications: overview.recentAnnouncements.map((a: any) => ({
+        notificationId: String(a.id),
+        title: a.title,
+        message: "",
+        category: a.type,
+        timestamp: a.date,
+        isRead: false
+      }))
+    };
+
+    return { data: dashboardData };
   },
 
   /** GET /parent/academics?childId= */
   async getAcademics(childId: string) {
-    await PAUSE(500);
-    return { data: generateDashboardData(childId).performance };
+    const res = await this.getDashboardSummary(childId);
+    return { data: res.data.performance };
   },
 
   /** GET /parent/attendance?childId= */
   async getAttendance(childId: string) {
-    await PAUSE(400);
-    return { data: generateDashboardData(childId).attendance };
+    const res = await this.getDashboardSummary(childId);
+    return { data: res.data.attendance };
   },
 
   /** GET /parent/homework?childId= */
   async getHomework(childId: string) {
-    await PAUSE(500);
-    return { data: generateDashboardData(childId).homeworkPending };
+    const res = await this.getDashboardSummary(childId);
+    return { data: res.data.homeworkPending };
   },
 
   /** GET /parent/fees?childId= */
   async getFees(childId: string) {
-    await PAUSE(600);
-    return { data: generateDashboardData(childId).feesDue };
+    const res = await this.getDashboardSummary(childId);
+    return { data: res.data.feesDue };
   }
 };
