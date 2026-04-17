@@ -82,6 +82,7 @@ const TeacherMyHrPage = lazy(() => import('@/pages/dashboard/teacher/my-hr/page'
 const TeacherMyClassPage = lazy(() => import('@/pages/dashboard/teacher/my-class/page'))
 const TeacherLectureLogsPage = lazy(() => import('@/pages/dashboard/teacher/lecture-logs/page'))
 const TeacherDisciplinePage = lazy(() => import('@/pages/dashboard/teacher/discipline/page'))
+const TeacherEvaluationPage = lazy(() => import('@/pages/dashboard/teacher/evaluation/page'))
 const TeacherSelfAttendancePage = lazy(() => import('@/pages/dashboard/teacher/self-attendance/page'))
 
 const StudentDashboard = lazy(() => import('@/pages/dashboard/student/page'))
