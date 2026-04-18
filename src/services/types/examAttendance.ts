@@ -13,12 +13,12 @@ export interface InvigilatorRoomResponseDTO {
 
 export interface ExamRoomStudentResponseDTO {
     studentId: number;
+    studentName: string;
     rollNo: number;
-    name: string;
     className: string;
-    seatPosition: string;
-    seatLabel: string;
-    status: ExamAttendanceStatus | null;
+    subjectName: string;
+    seatNumber: string;
+    attendanceStatus: ExamAttendanceStatus | null;
     finalized: boolean;
 }
 
@@ -30,7 +30,7 @@ export interface ExamAttendanceMarkEntryDTO {
 export interface ExamAttendanceMarkRequestDTO {
     examScheduleId: number;
     roomId: number;
-    entries: ExamAttendanceMarkEntryDTO[];
+    attendances: ExamAttendanceMarkEntryDTO[];
 }
 
 export interface ExamAttendanceFinalizeRequestDTO {

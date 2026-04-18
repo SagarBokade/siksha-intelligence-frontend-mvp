@@ -38,10 +38,10 @@ export function ExamAttendanceTable({
         const initialState: Record<number, LocalState> = {};
         let unmarkedCount = 0;
         students.forEach(s => {
-            if (!s.status) unmarkedCount++;
+            if (!s.attendanceStatus) unmarkedCount++;
             if (!localState[s.studentId]) {
                 initialState[s.studentId] = {
-                    status: s.status,
+                    status: s.attendanceStatus,
                     dirty: false,
                     isSaving: false
                 };
@@ -93,7 +93,7 @@ export function ExamAttendanceTable({
             await markMutation.mutateAsync({
                 examScheduleId,
                 roomId,
-                entries
+                attendances: entries
             });
 
             // Mark as saved and not dirty
@@ -137,7 +137,7 @@ export function ExamAttendanceTable({
         
         setLocalState(prev => {
             const current = prev[studentId];
-            if (current?.status === newStatus) return prev; // Click guard
+            if (current?.status === newStatus) return prev; // Click guard: identical status
             return {
                 ...prev,
                 [studentId]: {
@@ -174,15 +174,16 @@ export function ExamAttendanceTable({
                     </thead>
                     <tbody className="divide-y bg-card">
                         {students.map((student) => {
-                            const state = localState[student.studentId] || { status: student.status, dirty: false, isSaving: false };
+                            const state = localState[student.studentId] || { status: student.attendanceStatus, dirty: false, isSaving: false };
                             const status = state.status;
                             const isRowSaving = state.isSaving;
+                            const isRowDisabled = isFinalized;
 
                             return (
                                 <tr key={student.studentId} className={cn("transition-colors", isRowSaving && "opacity-60")}>
-                                    <td className="px-6 py-4 font-medium">{student.seatLabel || '-'}</td>
+                                    <td className="px-6 py-4 font-medium">{student.seatNumber || '-'}</td>
                                     <td className="px-6 py-4">{student.rollNo || '-'}</td>
-                                    <td className="px-6 py-4">{student.name}</td>
+                                    <td className="px-6 py-4">{student.studentName}</td>
                                     <td className="px-6 py-4">{student.className}</td>
                                     <td className="px-6 py-4">
                                         <div className="flex justify-center space-x-2">
@@ -190,7 +191,7 @@ export function ExamAttendanceTable({
                                                 size="sm"
                                                 variant={status === 'PRESENT' ? 'default' : 'outline'}
                                                 className={cn("w-12", status === 'PRESENT' && "bg-green-600 hover:bg-green-700")}
-                                                disabled={isFinalized}
+                                                disabled={isRowDisabled}
                                                 onClick={() => handleMark(student.studentId, 'PRESENT')}
                                             >
                                                 P
@@ -199,7 +200,7 @@ export function ExamAttendanceTable({
                                                 size="sm"
                                                 variant={status === 'ABSENT' ? 'default' : 'outline'}
                                                 className={cn("w-12", status === 'ABSENT' && "bg-red-600 hover:bg-red-700")}
-                                                disabled={isFinalized}
+                                                disabled={isRowDisabled}
                                                 onClick={() => handleMark(student.studentId, 'ABSENT')}
                                             >
                                                 A
@@ -208,7 +209,7 @@ export function ExamAttendanceTable({
                                                 size="sm"
                                                 variant={status === 'MALPRACTICE' ? 'default' : 'outline'}
                                                 className={cn("w-12", status === 'MALPRACTICE' && "bg-yellow-600 hover:bg-yellow-700 text-white")}
-                                                disabled={isFinalized}
+                                                disabled={isRowDisabled}
                                                 onClick={() => handleMark(student.studentId, 'MALPRACTICE')}
                                             >
                                                 M
