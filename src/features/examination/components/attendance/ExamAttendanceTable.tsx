@@ -17,6 +17,7 @@ interface ExamAttendanceTableProps {
 
 interface LocalState {
     status: ExamAttendanceStatus | null;
+    malpractice: boolean;
     dirty: boolean;
     isSaving: boolean;
 }
@@ -42,6 +43,7 @@ export function ExamAttendanceTable({
             if (!localState[s.studentId]) {
                 initialState[s.studentId] = {
                     status: s.attendanceStatus,
+                    malpractice: s.malpractice || false,
                     dirty: false,
                     isSaving: false
                 };
@@ -72,7 +74,7 @@ export function ExamAttendanceTable({
         Object.entries(localState).forEach(([idStr, state]) => {
             if (state.dirty && state.status) {
                 const studentId = Number(idStr);
-                entries.push({ studentId, status: state.status });
+                entries.push({ studentId, status: state.status, malpractice: state.malpractice });
                 studentIdsToMark.push(studentId);
             }
         });
@@ -132,16 +134,17 @@ export function ExamAttendanceTable({
         return () => clearTimeout(timer);
     }, [localState, flushChanges, onPendingChangesChange]);
 
-    const handleMark = (studentId: number, newStatus: ExamAttendanceStatus) => {
+    const handleMark = (studentId: number, newStatus: ExamAttendanceStatus, newMalpractice: boolean = false) => {
         if (isFinalized) return;
         
         setLocalState(prev => {
             const current = prev[studentId];
-            if (current?.status === newStatus) return prev; // Click guard: identical status
+            if (current?.status === newStatus && current?.malpractice === newMalpractice) return prev; // Click guard: identical status
             return {
                 ...prev,
                 [studentId]: {
                     status: newStatus,
+                    malpractice: newMalpractice,
                     dirty: true,
                     isSaving: false
                 }
@@ -174,8 +177,9 @@ export function ExamAttendanceTable({
                     </thead>
                     <tbody className="divide-y bg-card">
                         {students.map((student) => {
-                            const state = localState[student.studentId] || { status: student.attendanceStatus, dirty: false, isSaving: false };
+                            const state = localState[student.studentId] || { status: student.attendanceStatus, malpractice: student.malpractice || false, dirty: false, isSaving: false };
                             const status = state.status;
+                            const malpractice = state.malpractice;
                             const isRowSaving = state.isSaving;
                             const isRowDisabled = isFinalized;
 
@@ -192,7 +196,7 @@ export function ExamAttendanceTable({
                                                 variant={status === 'PRESENT' ? 'default' : 'outline'}
                                                 className={cn("w-12", status === 'PRESENT' && "bg-green-600 hover:bg-green-700")}
                                                 disabled={isRowDisabled}
-                                                onClick={() => handleMark(student.studentId, 'PRESENT')}
+                                                onClick={() => handleMark(student.studentId, 'PRESENT', malpractice)}
                                             >
                                                 P
                                             </Button>
@@ -201,16 +205,16 @@ export function ExamAttendanceTable({
                                                 variant={status === 'ABSENT' ? 'default' : 'outline'}
                                                 className={cn("w-12", status === 'ABSENT' && "bg-red-600 hover:bg-red-700")}
                                                 disabled={isRowDisabled}
-                                                onClick={() => handleMark(student.studentId, 'ABSENT')}
+                                                onClick={() => handleMark(student.studentId, 'ABSENT', false)}
                                             >
                                                 A
                                             </Button>
                                             <Button
                                                 size="sm"
-                                                variant={status === 'MALPRACTICE' ? 'default' : 'outline'}
-                                                className={cn("w-12", status === 'MALPRACTICE' && "bg-yellow-600 hover:bg-yellow-700 text-white")}
+                                                variant={malpractice ? 'default' : 'outline'}
+                                                className={cn("w-12", malpractice && "bg-yellow-600 hover:bg-yellow-700 text-white")}
                                                 disabled={isRowDisabled}
-                                                onClick={() => handleMark(student.studentId, 'MALPRACTICE')}
+                                                onClick={() => handleMark(student.studentId, status !== 'ABSENT' ? (status || 'PRESENT') : 'PRESENT', !malpractice)}
                                             >
                                                 M
                                             </Button>

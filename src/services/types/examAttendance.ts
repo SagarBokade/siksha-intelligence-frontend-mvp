@@ -19,12 +19,14 @@ export interface ExamRoomStudentResponseDTO {
     subjectName: string;
     seatNumber: string;
     attendanceStatus: ExamAttendanceStatus | null;
+    malpractice: boolean;
     finalized: boolean;
 }
 
 export interface ExamAttendanceMarkEntryDTO {
     studentId: number;
     status: ExamAttendanceStatus;
+    malpractice?: boolean;
 }
 
 export interface ExamAttendanceMarkRequestDTO {
