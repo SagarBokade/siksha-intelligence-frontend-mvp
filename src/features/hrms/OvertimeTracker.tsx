@@ -42,6 +42,8 @@ const OT_STATUS_COLORS: Record<OvertimeStatus, string> = {
     "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300",
   INCLUDED_IN_PAYROLL:
     "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300",
+  PAID:
+    "bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300",
 };
 
 interface OtFormState {
@@ -209,7 +211,7 @@ export default function OvertimeTracker() {
                       {formatDate(ot.workDate)} · {ot.hoursWorked}h worked
                       {ot.approvedAt != null && ` · approved`}
                     </p>
-                    {ot.compensationType === "CASH" && (ot.status === "APPROVED" || ot.status === "CONVERTED" || ot.status === "INCLUDED_IN_PAYROLL") && (
+                    {ot.compensationType === "CASH" && (ot.status === "APPROVED" || ot.status === "PAID" || ot.status === "INCLUDED_IN_PAYROLL") && (
                       <p className="text-xs font-semibold text-primary mt-1">
                         Payout: {ot.approvedAmount ? formatCurrency(ot.approvedAmount) : "Pending"} <span className="text-muted-foreground font-normal">(Rate: {ot.multiplier}x)</span>
                       </p>

@@ -8,7 +8,7 @@ export type HalfDayType = "FIRST_HALF" | "SECOND_HALF";
 export type TeachingWing = "PRIMARY" | "SECONDARY" | "SENIOR_SECONDARY" | "HIGHER_SECONDARY";
 export type SalaryComponentType = "EARNING" | "DEDUCTION";
 export type CalculationMethod = "FIXED" | "PERCENTAGE_OF_BASIC" | "PERCENTAGE_OF_GROSS";
-export type PayrollStatus = "PROCESSED" | "APPROVED" | "DISBURSED";
+export type PayrollStatus = "DRAFT" | "PROCESSING" | "PROCESSED" | "APPROVED" | "DISBURSED" | "FAILED" | "VOIDED";
 
 // ── Error handling ───────────────────────────────────────────────────
 export interface HrmsFieldErrorMap {
@@ -595,6 +595,7 @@ export interface LeaveTemplateResponseDTO {
   templateName: string;
   academicYear: string;
   description?: string;
+  applicableCategory?: StaffCategory;
   active: boolean;
   items: LeaveTemplateItemDTO[];
   createdAt: string;

@@ -27,7 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { hrmsService, normalizeHrmsError } from "@/services/hrms";
-import type { LoanRepaymentRecordDTO, LoanStatus, StaffLoanDTO } from "@/services/types/hrms";
+import type { LoanStatus, StaffLoanDTO } from "@/services/types/hrms";
 import { triggerBlobDownload } from "@/services/idCard";
 import EmptyState from "@/features/hrms/components/EmptyState";
 import ReviewDialog from "@/features/hrms/components/ReviewDialog";
@@ -41,6 +41,7 @@ const LOAN_STATUS_COLORS: Record<LoanStatus, string> = {
   ACTIVE: "bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300",
   CLOSED: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
   REJECTED: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300",
+  CANCELLED: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300",
 };
 
 const MONTH_NAMES = [

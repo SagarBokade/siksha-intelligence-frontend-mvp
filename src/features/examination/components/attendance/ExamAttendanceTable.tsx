@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useMarkAttendanceMutation } from '@/features/examination/hooks/useExamAttendanceQueries';
 import type { ExamRoomStudentResponseDTO, ExamAttendanceStatus, ExamAttendanceMarkEntryDTO } from '@/services/types/examAttendance';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Loader2, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';

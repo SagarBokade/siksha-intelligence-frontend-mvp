@@ -11,7 +11,6 @@ import {
   CircleX,
   Clock,
   Download,
-  FileDown,
   Loader2,
   MoreHorizontal,
   RefreshCw,
@@ -57,7 +56,7 @@ import { useHrmsFormatters } from "@/features/hrms/hooks/useHrmsFormatters";
 import { useAppSelector } from "@/store/hooks";
 import { hrmsService, normalizeHrmsError } from "@/services/hrms";
 import { triggerBlobDownload } from "@/services/idCard";
-import type { PayrollRunCreateDTO, PayrollRunResponseDTO, PayrollStatus } from "@/services/types/hrms";
+import type { PayrollRunCreateDTO, PayrollRunResponseDTO } from "@/services/types/hrms";
 import type { PayrollPreflightDTO } from "@/services/types/payrollPreflight";
 
 // ── Constants ─────────────────────────────────────────────────────────────────

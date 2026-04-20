@@ -49,9 +49,9 @@ export default function AttendanceTrendDashboard() {
         staffPresent: dayStaff.filter(r => r.shortCode === 'P').length,
         staffAbsent: dayStaff.filter(r => r.shortCode === 'A' || r.shortCode === 'LV').length,
         staffLate: dayStaff.filter(r => r.shortCode === 'L').length,
-        studentPresent: dayStudent.filter(r => r.shortCode === 'P').length,
-        studentAbsent: dayStudent.filter(r => r.shortCode === 'A' || r.shortCode === 'LV').length,
-        studentLate: dayStudent.filter(r => r.shortCode === 'L').length,
+        studentPresent: dayStudent.filter(r => r.attendanceTypeShortCode === 'P').length,
+        studentAbsent: dayStudent.filter(r => r.attendanceTypeShortCode === 'A' || r.attendanceTypeShortCode === 'LV').length,
+        studentLate: dayStudent.filter(r => r.attendanceTypeShortCode === 'L').length,
       };
     });
   }, [dateRange, staffData, studentData]);

@@ -28,11 +28,9 @@ export const useRoomAttendanceQuery = (roomId: number, examScheduleId: number) =
 };
 
 export const useMarkAttendanceMutation = () => {
-    const queryClient = useQueryClient();
-
     return useMutation({
         mutationFn: (request: ExamAttendanceMarkRequestDTO) => examAttendanceService.markAttendance(request),
-        onSuccess: (_, variables) => {
+        onSuccess: (_, _variables) => {
             // We usually invalidate the room roster, but since marking can be frequent,
             // we might want to avoid full invalidation and rely on optimistic updates
             // or just let the caller handle success states to keep UI fast.

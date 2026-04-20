@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BookOpen, CalendarDays, Clock, Edit2, LayoutTemplate, Loader2, Plus, SlidersHorizontal, Tag, Trash2, UserCheck, Users } from "lucide-react";
 import { toast } from "sonner";
@@ -371,7 +371,7 @@ export default function LeaveTemplateManager() {
                             <Tag className="h-2.5 w-2.5" />
                             {item.leaveTypeCode}: {item.customQuota}d
                             {hasFilters && (
-                              <SlidersHorizontal className="h-2.5 w-2.5 opacity-60" title="Has eligibility filters" />
+                              <SlidersHorizontal className="h-2.5 w-2.5 opacity-60" aria-label="Has eligibility filters" />
                             )}
                           </div>
                         );

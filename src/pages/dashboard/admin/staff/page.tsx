@@ -50,11 +50,7 @@ const STAFF_TYPE_OPTIONS: { value: StaffType; label: string }[] = [
   { value: "SECURITY_GUARD", label: "Security Guard" },
 ];
 
-interface Designation {
-  designationId: number;
-  designationName: string;
-  category: string;
-}
+
 
 // ── Zod Schema ──────────────────────────────────────────────────────
 const staffSchema = z.object({

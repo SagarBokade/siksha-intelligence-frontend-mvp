@@ -92,7 +92,6 @@ import type {
   StaffSummaryDTO,
   StaffSalaryMappingCreateDTO,
   StaffSalaryMappingResponseDTO,
-  BankAccountType,
   BankDetailsUpdateDTO,
   BankDetailsBulkImportResultDTO,
   StaffBankStatusDTO,

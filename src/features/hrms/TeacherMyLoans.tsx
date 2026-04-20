@@ -21,6 +21,7 @@ const LOAN_STATUS_COLORS: Record<LoanStatus, string> = {
   ACTIVE: "bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300",
   CLOSED: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
   REJECTED: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300",
+  CANCELLED: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300",
 };
 
 interface LoanFormState {

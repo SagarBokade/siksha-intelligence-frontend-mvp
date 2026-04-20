@@ -29,6 +29,8 @@ import DesignationStaffDialog from "@/features/hrms/components/DesignationStaffD
 import { hrmsService, normalizeHrmsError } from "@/services/hrms";
 import { useAppSelector } from "@/store/hooks";
 import type {
+  SalaryTemplateResponseDTO,
+  StaffGradeResponseDTO,
   StaffCategory,
   StaffDesignationCreateUpdateDTO,
   StaffDesignationResponseDTO,
@@ -92,12 +94,12 @@ export default function DesignationManagement() {
 
   const { data: salaryTemplates } = useQuery({
     queryKey: ["hrms", "salary-templates"],
-    queryFn: () => hrmsService.listSalaryTemplates().then((res) => res.data.content),
+    queryFn: () => hrmsService.listSalaryTemplates().then((res) => res.data),
   });
 
   const { data: staffGrades } = useQuery({
     queryKey: ["hrms", "staff-grades"],
-    queryFn: () => hrmsService.listGrades().then((res) => res.data.content),
+    queryFn: () => hrmsService.listGrades().then((res) => res.data),
   });
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["hrms", "designations"] });
@@ -152,8 +154,8 @@ export default function DesignationManagement() {
       category: row.category,
       description: row.description ?? "",
       sortOrder: row.sortOrder,
-      defaultSalaryTemplateRef: salaryTemplates?.find(t => t.templateId === row.defaultSalaryTemplateId)?.uuid,
-      defaultGradeRef: staffGrades?.find(g => g.gradeId === row.defaultGradeId)?.uuid,
+      defaultSalaryTemplateRef: salaryTemplates?.find((t: SalaryTemplateResponseDTO) => t.templateId === row.defaultSalaryTemplateId)?.uuid,
+      defaultGradeRef: staffGrades?.find((g: StaffGradeResponseDTO) => g.gradeId === row.defaultGradeId)?.uuid,
       teachingLevel: row.teachingLevel,
     });
     setFieldErrors({});

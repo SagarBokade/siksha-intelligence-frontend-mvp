@@ -14,7 +14,6 @@ import {
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -60,7 +59,7 @@ const initialApplyForm: LeaveApplicationCreateDTO = {
 
 type LeaveAction = "approve" | "reject" | "cancel";
 
-const STATUS_OPTIONS: Array<"ALL" | LeaveStatus> = ["ALL", "PENDING", "APPROVED", "REJECTED", "CANCELLED"];
+
 const CATEGORY_OPTIONS: Array<{ value: "ALL" | StaffCategory; label: string }> = [
   { value: "ALL", label: "All Categories" },
   { value: "TEACHING", label: "Teaching" },

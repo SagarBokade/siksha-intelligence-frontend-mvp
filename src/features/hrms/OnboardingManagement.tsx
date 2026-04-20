@@ -44,7 +44,7 @@ import type {
   TaskRecordStatus,
 } from "@/services/types/hrms";
 import { adminService } from "@/services/admin";
-import type { Department, StaffCategory as AdminStaffCategory } from "@/services/types/admin";
+import type { Department } from "@/services/types/admin";
 import EmptyState from "@/features/hrms/components/EmptyState";
 import ReviewDialog from "@/features/hrms/components/ReviewDialog";
 import StaffSearchSelect from "@/features/hrms/components/StaffSearchSelect";

@@ -260,7 +260,7 @@ export default function LeaveCalendarDesigner() {
             Table
           </Button>
         </div>
-        <Button size="sm" onClick={openCreate}>
+        <Button size="sm" onClick={() => openCreate()}>
           <Plus className="mr-2 h-4 w-4" /> Add Event
         </Button>
       </div>

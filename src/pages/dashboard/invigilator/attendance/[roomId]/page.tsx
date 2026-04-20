@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useRoomAttendanceQuery, useFinalizeAttendanceMutation } from '@/features/examination/hooks/useExamAttendanceQueries';
 import { ExamAttendanceTable } from '@/features/examination/components/attendance/ExamAttendanceTable';

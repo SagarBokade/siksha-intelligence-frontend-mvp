@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Award, BarChart2, Building2, Calendar, CheckCircle2, Clock, FolderOpen, IndianRupee, Loader2, Pencil, TrendingUp, Users, X } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, RadialBar, RadialBarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { ArrowLeft, Award, Building2, Calendar, CheckCircle2, Clock, FolderOpen, IndianRupee, Loader2, Pencil, TrendingUp, Users, X } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHrmsFormatters } from "@/features/hrms/hooks/useHrmsFormatters";
 import { hrmsService, normalizeHrmsError } from "@/services/hrms";
 import { cn } from "@/lib/utils";
@@ -46,18 +46,7 @@ function normalizeAttendanceStatus(raw: string): string {
   return "UNMARKED";
 }
 
-function statusColor(status: string) {
-  const s = normalizeAttendanceStatus(status);
-  switch (s) {
-    case "PRESENT": return "bg-green-500";
-    case "ABSENT": return "bg-red-500";
-    case "HALF_DAY": return "bg-amber-500";
-    case "ON_LEAVE": return "bg-purple-500";
-    case "HOLIDAY": return "bg-blue-300";
-    case "UNMARKED":
-    default: return "bg-gray-200 border text-gray-400";
-  }
-}
+
 
 export default function Staff360ProfilePage() {
   const { staffRef } = useParams();

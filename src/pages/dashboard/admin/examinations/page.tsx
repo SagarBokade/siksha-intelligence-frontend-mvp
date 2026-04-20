@@ -24,7 +24,7 @@ import InvigilationPanel from "@/features/examination/components/InvigilationPan
 import SeatingPlanPanel from "@/features/examination/components/SeatingPlanPanel";
 import EvaluationAssignmentsPanel from "@/features/examination/components/EvaluationAssignmentsPanel";
 import ResultsApprovalPanel from "@/features/examination/components/ResultsApprovalPanel";
-import AdmitCardPanel from "@/features/examination/components/AdmitCardPanel";
+
 import AdmitCardBatchPanel from "@/features/examination/components/AdmitCardBatchPanel";
 import {
   useGetAllGradeSystems,
@@ -37,7 +37,7 @@ import type {
 } from "@/services/types/examination";
 
 type ActiveTab = "dashboard" | "exams" | "templates" | "grades" | "questions" | "papers" | "invigilation" | "seating" | "admitCards" | "evaluation" | "results";
-type AdmitCardSubTab = "management" | "batch";
+
 
 // Sub-view management for drill-down navigation
 type SubView =
@@ -114,7 +114,7 @@ const tabs: {
 export default function ExaminationsPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
   const [subView, setSubView] = useState<SubView>({ kind: "list" });
-  const [admitCardSubTab, setAdmitCardSubTab] = useState<AdmitCardSubTab>("batch");
+
 
   // Counts for the dashboard
   const { data: gradeSystems = [] } = useGetAllGradeSystems();

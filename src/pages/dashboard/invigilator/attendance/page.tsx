@@ -3,7 +3,7 @@ import { useInvigilatorRoomsQuery } from '@/features/examination/hooks/useExamAt
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Clock, Users, BookOpen, DoorOpen, Calendar } from 'lucide-react';
+import { Clock, DoorOpen, Calendar } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
 export default function InvigilatorRoomsPage() {

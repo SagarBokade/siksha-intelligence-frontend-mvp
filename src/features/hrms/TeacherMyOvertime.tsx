@@ -20,6 +20,7 @@ const STATUS_COLORS: Record<OvertimeStatus, string> = {
   APPROVED: "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300",
   REJECTED: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300",
   INCLUDED_IN_PAYROLL: "bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300",
+  PAID: "bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300",
 };
 
 export default function TeacherMyOvertime() {
@@ -87,7 +88,7 @@ export default function TeacherMyOvertime() {
                 </div>
               </CardHeader>
               <CardContent className="pt-0 pb-3">
-                {record.compensationType === "CASH" && (record.status === "APPROVED" || record.status === "CONVERTED" || record.status === "INCLUDED_IN_PAYROLL") && (
+                {record.compensationType === "CASH" && (record.status === "APPROVED" || record.status === "INCLUDED_IN_PAYROLL" || record.status === "PAID") && (
                   <p className="text-xs font-semibold text-primary mb-1">
                     Payout: {record.approvedAmount ? formatCurrency(record.approvedAmount) : "Pending"} <span className="text-muted-foreground font-normal">(Rate: {record.multiplier}x)</span>
                   </p>
