@@ -119,7 +119,7 @@ function ProxyCoverageWidget({ hrms }: { hrms: HrmsDashboardSummaryDTO | null })
     {
       label: "Uncovered Proxy Periods",
       value: hrms.pendingProxyCount,
-      icon: UserSwap,
+      icon: ArrowRightLeft,
       accent: hrms.pendingProxyCount > 0 ? "text-amber-600 bg-amber-500/10" : "text-emerald-600 bg-emerald-500/10",
       actionUrl: "/dashboard/admin/proxy",
     },
@@ -210,7 +210,10 @@ export default function AdminOverview() {
   useEffect(() => {
     fetchAll();
     // Auto-refresh every 90 seconds
-    const interval = setInterval(() => fetchAll(true), 90_000);
+    const interval = setInterval(() => {
+      // Skip polling when the tab is hidden — no wasted backend requests
+      if (document.visibilityState === 'visible') fetchAll(true);
+    }, 90_000);
     return () => clearInterval(interval);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
