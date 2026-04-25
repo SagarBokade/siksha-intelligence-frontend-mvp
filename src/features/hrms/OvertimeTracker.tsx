@@ -162,22 +162,34 @@ export default function OvertimeTracker() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Overtime & Comp-Off</h1>
-          <p className="text-sm text-muted-foreground">
-            Track and approve overtime hours and compensatory-off credits
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setCompOffOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Comp-Off
-          </Button>
-          <Button onClick={() => setOtFormOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Record Overtime
-          </Button>
+      {/* Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-600 p-5 text-white shadow-lg">
+        <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-xl" />
+        <div className="relative flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20 text-2xl shadow-inner">
+              ⏱️
+            </div>
+            <div>
+              <h2 className="text-xl font-bold tracking-tight">Overtime &amp; Comp-Off</h2>
+              <p className="text-sm text-white/70">Track and approve overtime hours and compensatory-off credits</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setCompOffOpen(true)}
+              className="bg-white/20 border-white/30 text-white hover:bg-white/30 backdrop-blur-sm gap-1.5"
+            >
+              🔄 Add Comp-Off
+            </Button>
+            <Button
+              onClick={() => setOtFormOpen(true)}
+              className="bg-white text-amber-700 hover:bg-white/90 font-semibold gap-1.5 shadow-sm"
+            >
+              ➕ Record Overtime
+            </Button>
+          </div>
         </div>
       </div>
 

@@ -280,24 +280,24 @@ export default function LeaveTemplateManager() {
             <Button
               size="sm"
               onClick={() => setFormOpen(true)}
-              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md"
+              className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md gap-1.5"
             >
-              <Plus className="mr-2 h-4 w-4" /> Create Template
+              ➕ Create Template
             </Button>
           )}
         </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="templates" className="gap-1.5">
-            <BookOpen className="h-4 w-4" /> Templates
+        <TabsList className="mb-4 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1">
+          <TabsTrigger value="templates" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-sm">
+            📋 Templates
           </TabsTrigger>
-          <TabsTrigger value="assign" className="gap-1.5">
-            <Users className="h-4 w-4" /> By Designation
+          <TabsTrigger value="assign" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-sm">
+            👥 By Designation
           </TabsTrigger>
-          <TabsTrigger value="staff" className="gap-1.5">
-            <UserCheck className="h-4 w-4" /> By Staff
+          <TabsTrigger value="staff" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-violet-500 data-[state=active]:text-white data-[state=active]:shadow-sm">
+            👤 By Staff
           </TabsTrigger>
         </TabsList>
 
@@ -387,9 +387,14 @@ export default function LeaveTemplateManager() {
                         <Clock className="h-3 w-3" />
                         {format(new Date(t.updatedAt), "MMM d, yyyy")}
                       </span>
-                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openEdit(t)}>
-                        Edit Template
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-blue-600 hover:bg-blue-50" onClick={() => openEdit(t)}>
+                          ✏️ Edit
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-rose-600 hover:bg-rose-50" onClick={() => setDeleteTarget(t)}>
+                          🗑️ Delete
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -431,15 +431,26 @@ export default function LoanManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Loan Management</h1>
-          <p className="text-sm text-muted-foreground">Manage staff loan applications and repayment schedules</p>
+      {/* Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-700 via-blue-700 to-cyan-700 p-5 text-white shadow-lg">
+        <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-xl" />
+        <div className="relative flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20 text-2xl shadow-inner">
+              🏦
+            </div>
+            <div>
+              <h2 className="text-xl font-bold tracking-tight">Loan Management</h2>
+              <p className="text-sm text-white/70">Manage staff loan applications, approvals and repayment schedules</p>
+            </div>
+          </div>
+          <Button
+            onClick={() => setCreateOpen(true)}
+            className="bg-white text-indigo-700 hover:bg-white/90 font-semibold gap-1.5 shadow-sm"
+          >
+            ➕ New Loan Application
+          </Button>
         </div>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Loan Application
-        </Button>
       </div>
 
       <Tabs defaultValue="active">

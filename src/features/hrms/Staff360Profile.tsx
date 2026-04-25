@@ -128,27 +128,50 @@ export default function Staff360ProfilePage() {
 
   return (
     <div className="space-y-6">
-      {/* Back + header */}
-      <div className="flex items-start gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="shrink-0 mt-0.5">
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex-1">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-bold">{fullName}</h1>
-            {personal?.category && <CategoryBadge category={personal.category} />}
-            {personal?.active && <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>}
+      {/* Identity hero banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 p-5 text-white shadow-lg">
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+        <div className="relative flex flex-wrap items-center gap-4">
+          {/* Back button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          {/* Avatar */}
+          <div className="relative shrink-0">
+            <div className="h-14 w-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-2xl font-bold shadow-inner border border-white/30">
+              {(personal?.firstName?.[0] ?? "") + (personal?.lastName?.[0] ?? "")}
+            </div>
+            <span className={cn(
+              "absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-indigo-700",
+              personal?.active ? "bg-emerald-400" : "bg-gray-400"
+            )} />
           </div>
-          <p className="text-sm text-muted-foreground mt-1">
-            {currentDesignation?.designationName ?? personal?.jobTitle ?? "—"} &nbsp;·&nbsp; {personal?.employeeId ?? "—"}
-          </p>
+          {/* Identity */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl font-bold truncate">{fullName}</h1>
+              {personal?.active && (
+                <span className="text-[10px] font-bold bg-emerald-400/20 border border-emerald-300/40 px-2 py-0.5 rounded-full">● Active</span>
+              )}
+              {personal?.category && <CategoryBadge category={personal.category} />}
+            </div>
+            <p className="text-sm text-white/70 mt-0.5">
+              {currentDesignation?.designationName ?? personal?.jobTitle ?? "—"}&nbsp;·&nbsp;{personal?.employeeId ?? "—"}
+              {personal?.department && <>&nbsp;·&nbsp;{personal.department}</>}
+            </p>
+          </div>
+          {/* Actions */}
+          <Link to={`/dashboard/admin/hrms/documents?staffRef=${staffRef}`}>
+            <Button className="bg-white/20 border border-white/30 text-white hover:bg-white/30 gap-2 backdrop-blur-sm">
+              <FolderOpen className="h-4 w-4" />
+              <span className="hidden sm:inline">Documents</span>
+              <span className="text-white/60">({profile.documentCount})</span>
+            </Button>
+          </Link>
         </div>
-        <Link to={`/dashboard/admin/hrms/documents?staffRef=${staffRef}`}>
-          <Button variant="outline" size="sm" className="gap-2">
-            <FolderOpen className="h-4 w-4" />
-            Documents ({profile.documentCount})
-          </Button>
-        </Link>
       </div>
 
       {/* Summary strip */}

@@ -212,3 +212,59 @@ export default function LoginPage() {
     </div>
   )
 }
+                  <label className="remember-me" htmlFor="rememberMe">
+                    <input
+                      id="rememberMe"
+                      type="checkbox"
+                      disabled={loading}
+                      {...form.register('rememberMe')}
+                    />
+                    <span>Remember me</span>
+                  </label>
+                  <a href="#" className="forgot-password">Forgot password?</a>
+                </div>
+
+                {/* Sign In Button */}
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className={`sign-in-button${loading ? ' is-loading' : ''}`}
+                  onClick={handleRipple}
+                >
+                  {/* Ripple elements */}
+                  {ripples.map((r) => (
+                    <span
+                      key={r.id}
+                      className="ripple-span"
+                      style={{
+                        left: r.x,
+                        top: r.y,
+                        width: 20,
+                        height: 20,
+                        marginLeft: -10,
+                        marginTop: -10,
+                      }}
+                    />
+                  ))}
+
+                  {loading ? (
+                    <>
+                      Signing in…
+                      <span className="btn-progress" />
+                    </>
+                  ) : (
+                    'Sign In'
+                  )}
+                </Button>
+              </form>
+
+              <div className="login-footer">
+                <p className="login-footer-text">Secured by Shiksha Intelligence Platform</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

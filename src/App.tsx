@@ -74,6 +74,7 @@ const BankDetailsManager = lazy(() => import('@/features/hrms/BankDetailsManager
 const StatutoryReports = lazy(() => import('@/features/hrms/StatutoryReports'))
 const StatutorySettings = lazy(() => import('@/features/hrms/StatutorySettings'))
 const Staff360ProfilePage = lazy(() => import('@/features/hrms/Staff360Profile'))
+const LateClockInReview = lazy(() => import('@/features/hrms/LateClockInReview'))
 
 const TeacherDashboardPage = lazy(() => import('@/pages/dashboard/teacher/page'))
 const TeacherProfilePage = lazy(() => import('@/pages/dashboard/teacher/profile/page'))
@@ -236,6 +237,8 @@ export default function App() {
             <Route path="attendance" element={withRouteSuspense(<StaffAttendanceTab />)} />
             <Route path="attendance/trends" element={withRouteSuspense(<AttendanceTrendDashboard />)} />
             <Route path="attendance/shifts" element={withRouteSuspense(<ShiftManagement />)} />
+            <Route path="attendance/late-clockin" element={withRouteSuspense(<LateClockInReview />)} />
+
             <Route path="leaves/calendar" element={withRouteSuspense(<LeaveCalendarDesigner />)} />
             <Route path="leaves/types" element={withRouteSuspense(<LeaveTypeConfig />)} />
             <Route path="leaves/templates" element={withRouteSuspense(<LeaveTemplateManager />)} />

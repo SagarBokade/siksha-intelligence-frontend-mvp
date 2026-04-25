@@ -220,29 +220,40 @@ export default function DesignationManagement() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="text-base font-semibold">Designation Management</h3>
-        <div className="flex items-center gap-2">
-          <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as "ALL" | StaffCategory)}>
-            <SelectTrigger className="w-[220px]">
-              <SelectValue placeholder="Filter category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Categories</SelectItem>
-              {CATEGORY_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setAssignDialogDesignation(null)}>
-            <UserPlus className="h-4 w-4" />
-          </Button>
-          <Button size="sm" onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" /> Add Designation
-          </Button>
+      {/* Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-violet-700 p-5 text-white shadow-lg">
+        <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-xl" />
+        <div className="relative flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20 text-2xl shadow-inner">
+              🏢
+            </div>
+            <div>
+              <h2 className="text-xl font-bold tracking-tight">Designation Management</h2>
+              <p className="text-sm text-white/70">Configure staff roles, categories, pay templates and grades</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as "ALL" | StaffCategory)}>
+              <SelectTrigger className="w-[180px] bg-white/20 border-white/30 text-white h-9 backdrop-blur-sm">
+                <SelectValue placeholder="Filter category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Categories</SelectItem>
+                {CATEGORY_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={openCreate}
+              className="bg-white text-indigo-700 hover:bg-white/90 font-semibold shadow-sm gap-1.5"
+            >
+              ➕ Add Designation
+            </Button>
+          </div>
         </div>
       </div>
 

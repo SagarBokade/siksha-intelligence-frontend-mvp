@@ -1317,3 +1317,26 @@ export interface BankDetailsBulkImportResultDTO {
   errorCount: number;
   errors: { rowNumber: number; employeeId: string; reason: string }[];
 }
+
+// ── Late Clock-In Review (Phase 2.2) ─────────────────────────────────
+export type LateClockInStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+export interface LateClockInRequestDTO {
+  uuid: string;
+  staffId: number;
+  staffName: string;
+  employeeId: string;
+  designation?: string;
+  attendanceDate: string;
+  clockInTime?: string;
+  minutesLate: number;
+  reason?: string;
+  status: LateClockInStatus;
+  adminRemarks?: string;
+  createdAt: string;
+}
+
+export interface LateClockInReviewDTO {
+  action: "APPROVE" | "REJECT";
+  remarks?: string;
+}
