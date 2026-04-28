@@ -159,7 +159,7 @@ function CreateBillDialog({ open, onClose, onSaved, vendors, pos }: {
   vendors: VendorResponseDTO[]; pos: PurchaseOrderResponseDTO[];
 }) {
   const [vendorId, setVendorId] = useState("");
-  const [poId, setPoId] = useState("");
+  const [poId, setPoId] = useState("none");
   const [invoiceNum, setInvoiceNum] = useState("");
   const [billDate, setBillDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [dueDate, setDueDate] = useState("");
@@ -175,7 +175,7 @@ function CreateBillDialog({ open, onClose, onSaved, vendors, pos }: {
     setSaving(true);
     try {
       await apService.create({
-        vendorId: Number(vendorId), purchaseOrderId: poId ? Number(poId) : undefined,
+        vendorId: Number(vendorId), purchaseOrderId: poId !== "none" ? Number(poId) : undefined,
         vendorInvoiceNumber: invoiceNum, billDate, dueDate: dueDate || undefined,
         billAmount: Number(amount), taxAmount: Number(tax) || 0, notes,
       });
@@ -190,7 +190,7 @@ function CreateBillDialog({ open, onClose, onSaved, vendors, pos }: {
         <DialogHeader><DialogTitle>Record Vendor Bill</DialogTitle></DialogHeader>
         <div className="space-y-3 py-2">
           <div className="space-y-1.5"><Label>Vendor *</Label>
-            <Select value={vendorId} onValueChange={v => { setVendorId(v); setPoId(""); }}>
+            <Select value={vendorId} onValueChange={v => { setVendorId(v); setPoId("none"); }}>
               <SelectTrigger><SelectValue placeholder="Select vendor…" /></SelectTrigger>
               <SelectContent>{vendors.map(v => <SelectItem key={v.id} value={String(v.id)}>{v.name}</SelectItem>)}</SelectContent>
             </Select>
@@ -199,7 +199,7 @@ function CreateBillDialog({ open, onClose, onSaved, vendors, pos }: {
             <Select value={poId} onValueChange={setPoId} disabled={!vendorId}>
               <SelectTrigger><SelectValue placeholder="Select PO (optional)…" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {vendorPOs.map(p => <SelectItem key={p.id} value={String(p.id)}>{p.poNumber} — ₹{Number(p.totalAmount).toLocaleString("en-IN")}</SelectItem>)}
               </SelectContent>
             </Select>
