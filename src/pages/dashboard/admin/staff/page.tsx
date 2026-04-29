@@ -5,7 +5,7 @@ import { z } from "zod";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Users, Upload, ChevronRight, RefreshCw, Search, ChevronLeft, CreditCard, Camera, Plus, Loader2, Sparkles, Pencil } from "lucide-react";
+import { Users, Upload, ChevronRight, RefreshCw, Search, ChevronLeft, CreditCard, Camera, Plus, Loader2, Sparkles, Pencil, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import StatusBadge from "@/components/common/StatusBadge";
@@ -113,6 +113,10 @@ export default function StaffPage() {
   const [usernameOverride, setUsernameOverride] = useState(false);
   const usernameDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [validatingUsername, setValidatingUsername] = useState(false);
+  const usernameCheckDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const form = useForm<StaffFormData>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(staffSchema) as any,
@@ -123,6 +127,30 @@ export default function StaffPage() {
       dateOfBirth: "", officeLocation: "", initialPassword: "",
     },
   });
+
+  const watchUsername = form.watch("username");
+
+  useEffect(() => {
+    if (!usernameOverride || editingStaff || !watchUsername) {
+      setUsernameAvailable(null);
+      return;
+    }
+    
+    if (usernameCheckDebounce.current) clearTimeout(usernameCheckDebounce.current);
+    setUsernameAvailable(null);
+    setValidatingUsername(true);
+    
+    usernameCheckDebounce.current = setTimeout(async () => {
+      try {
+        const res = await adminService.checkUsername(watchUsername);
+        setUsernameAvailable(res.data.available);
+      } catch {
+        setUsernameAvailable(null);
+      } finally {
+        setValidatingUsername(false);
+      }
+    }, 500);
+  }, [watchUsername, usernameOverride, editingStaff]);
 
   // ── Auto-generate username from firstName + lastName ──────────────
   const triggerUsernameGeneration = useCallback(
@@ -791,7 +819,23 @@ export default function StaffPage() {
                   </button>
                 </div>
                 {usernameOverride ? (
-                  <Input {...form.register("username")} placeholder="e.g. john.doe" />
+                  <div className="space-y-1.5">
+                    <div className="relative">
+                      <Input {...form.register("username")} placeholder="e.g. john.doe" className="pr-10" />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+                        {validatingUsername && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                        {!validatingUsername && usernameAvailable === true && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                        {!validatingUsername && usernameAvailable === false && <XCircle className="h-4 w-4 text-destructive" />}
+                      </div>
+                    </div>
+                    {usernameAvailable === false && (
+                      <div className="text-xs flex flex-col gap-1 mt-1 bg-destructive/10 text-destructive p-2 rounded-md">
+                        <span className="font-medium flex items-center gap-1">
+                          <XCircle className="h-3.5 w-3.5" /> Username is taken
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2">
                     {generatingUsername ? (

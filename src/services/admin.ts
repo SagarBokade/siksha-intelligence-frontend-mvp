@@ -257,6 +257,13 @@ export const adminService = {
       { params: { firstName, lastName } }
     );
   },
+
+  checkUsername(username: string) {
+    return api.get<{ username: string; available: boolean }>(
+      "/auth/admin/users/check-username",
+      { params: { username } }
+    );
+  },
 };
 
 

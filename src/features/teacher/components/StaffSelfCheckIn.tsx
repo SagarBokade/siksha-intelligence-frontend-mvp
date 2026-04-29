@@ -14,7 +14,7 @@ import { haversineMeters } from "@/lib/geo";
 import { useTeacherSchedule, useTeacherDashboardSummary } from "@/features/teacher/queries/useTeacherQueries";
 import { handleAttendanceError } from "@/features/attendance/utils/attendanceError";
 import { getLocalDateString } from "@/lib/dateUtils";
-import { MapPin, Clock, LogIn, LogOut, CheckCircle2, Lock, AlertTriangle } from "lucide-react";
+import { MapPin, Clock, LogIn, LogOut, CheckCircle2, Lock, AlertTriangle, CalendarOff } from "lucide-react";
 
 // Fix vector icon bug in leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -87,11 +87,16 @@ export default function StaffSelfCheckIn() {
 
   const isHoliday = !!holidayEvent;
 
-  const { data: shiftMapping } = useQuery({
+  const { data: shiftMapping, isError: shiftMappingError, isLoading: shiftMappingLoading } = useQuery({
     queryKey: ["ams", "shifts", "mappings", "staff", schedule?.staffUuid],
     queryFn: () => shiftService.getStaffShiftMapping(schedule!.staffUuid).then((r: any) => r.data),
     enabled: !!schedule?.staffUuid,
+    retry: false,
   });
+
+  const isShiftMapped = !!shiftMapping && !shiftMappingError;
+  const todayDayOfWeek = new Date().getDay() || 7;
+  const isOffDay = isShiftMapped && shiftMapping.applicableDays && !shiftMapping.applicableDays.includes(todayDayOfWeek);
 
   const geo = useMemo(() => {
     // If settings fetch errored (e.g. 403 for teacher), fail open — don't enforce geofence
@@ -227,7 +232,7 @@ export default function StaffSelfCheckIn() {
     },
   });
 
-  if (recordLoading) return <div className="rounded-2xl border border-border bg-card p-6 min-h-[300px] flex items-center justify-center text-sm text-muted-foreground">Loading attendance status...</div>;
+  if (recordLoading || shiftMappingLoading) return <div className="rounded-2xl border border-border bg-card p-6 min-h-[300px] flex items-center justify-center text-sm text-muted-foreground">Loading attendance status...</div>;
 
   const isCheckedIn = !!todayRecord?.timeIn;
   const isCheckedOut = !!todayRecord?.timeOut;
@@ -273,6 +278,18 @@ export default function StaffSelfCheckIn() {
                 <Lock className="mb-2 text-rose-500" size={24} />
                 <span className="text-sm">Check-In Disabled</span>
                 <span className="text-xs font-normal opacity-80">You are currently out on an approved leave today.</span>
+              </div>
+            ) : !isShiftMapped ? (
+              <div className="w-full bg-slate-50 text-slate-700 py-4 px-3 rounded-xl flex flex-col items-center justify-center border border-slate-200/60 font-medium shadow-sm text-center">
+                <AlertTriangle className="mb-2 text-slate-500" size={24} />
+                <span className="text-sm">Shift Not Mapped</span>
+                <span className="text-xs font-normal opacity-80">You are not mapped to a shift yet. Please contact your administrator.</span>
+              </div>
+            ) : isOffDay ? (
+              <div className="w-full bg-slate-50 text-slate-700 py-4 px-3 rounded-xl flex flex-col items-center justify-center border border-slate-200/60 font-medium shadow-sm text-center">
+                <CalendarOff className="mb-2 text-slate-500" size={24} />
+                <span className="text-sm">Off Day</span>
+                <span className="text-xs font-normal opacity-80">Today is a non-working day according to your shift schedule.</span>
               </div>
             ) : isHoliday ? (
               <div className="w-full bg-amber-50 text-amber-700 py-4 px-3 rounded-xl flex flex-col items-center justify-center border border-amber-100/50 font-medium shadow-sm text-center">

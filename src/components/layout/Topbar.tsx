@@ -45,6 +45,13 @@ export default function Topbar() {
     toast.success("Logged out successfully");
   };
 
+  const isSuperAdmin = user?.roles?.includes("ROLE_SUPER_ADMIN");
+  const displayName = isSuperAdmin 
+    ? "Super Admin" 
+    : (user?.firstName || user?.lastName) 
+      ? `${user.firstName || ""} ${user.lastName || ""}`.trim() 
+      : (user?.username ?? "Admin");
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card/80 px-6 backdrop-blur-sm">
       {/* Breadcrumbs */}
@@ -76,7 +83,7 @@ export default function Topbar() {
       <div className="flex items-center gap-3">
         <div className="hidden text-right sm:block">
           <p className="text-sm font-medium text-foreground leading-tight">
-            {user?.username ?? "Admin"}
+            {displayName}
           </p>
           <p className="text-xs text-muted-foreground">
             {user?.roles?.[0]?.replace("ROLE_", "") ?? "ADMIN"}
@@ -87,7 +94,7 @@ export default function Topbar() {
 
         {/* Avatar */}
         <UserAvatar 
-          name={user?.username} 
+          name={displayName} 
           profileUrl={user?.profileUrl} 
           className="h-9 w-9 ring-2 ring-primary/20" 
         />

@@ -25,6 +25,7 @@ import StudentAdmitCardsPage from './pages/dashboard/student/admit-cards/page'
 import ExamControllerLayout from './components/layout/ExamControllerLayout'
 
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'))
+const ResetPasswordPage = lazy(() => import('@/features/auth/ResetPasswordPage'))
 const ApplicantSignupPage = lazy(() => import('@/features/auth/ApplicantSignupPage'))
 const HomePage = lazy(() => import('@/pages/HomePage'))
 
@@ -157,6 +158,14 @@ export default function App() {
           element={
             <GuestOnly>
               {withRouteSuspense(<LoginPage />)}
+            </GuestOnly>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <GuestOnly>
+              {withRouteSuspense(<ResetPasswordPage />)}
             </GuestOnly>
           }
         />

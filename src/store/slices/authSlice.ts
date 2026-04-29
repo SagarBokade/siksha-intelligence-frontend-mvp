@@ -13,6 +13,8 @@ export interface User {
   /** Backend user identifier (from `userDetailsDto.userId`). */
   userId: string
   username: string
+  firstName?: string
+  lastName?: string
   email: string
   roles: string[]
   profileUrl?: string
@@ -121,6 +123,8 @@ const normalizeLoginResponse = (data: any): LoginResponse => {
     user: {
       userId: String(userDetails.userId ?? userDetails.user_id ?? userDetails.id ?? ''),
       username: String(userDetails.username ?? ''),
+      firstName: userDetails.firstName ?? undefined,
+      lastName: userDetails.lastName ?? undefined,
       email: String(userDetails.email ?? ''),
       roles: Array.isArray(userDetails.roles)
         ? userDetails.roles.map(String)
@@ -149,6 +153,8 @@ export const login = createAsyncThunk<LoginResponse, LoginRequest, { rejectValue
           user: {
             userId: "parent-1",
             username: "parentUser",
+            firstName: "Parent",
+            lastName: "User",
             email: "parent@edusync.com",
             roles: ["PARENT"],
             profileUrl: undefined

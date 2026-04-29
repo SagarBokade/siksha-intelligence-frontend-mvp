@@ -147,9 +147,11 @@ export default function StudentsPage() {
         let data = res.data.content;
         
         // Fetch remaining pages if there's more than 100 students
-        if (res.data.totalPages > 1) {
+        // Calculate totalPages safely from totalElements if the `totalPages` property is missing
+        const totalPages = res.data.totalPages || Math.ceil(res.data.totalElements / 100) || 1;
+        if (totalPages > 1) {
           const promises = [];
-          for (let i = 1; i < res.data.totalPages; i++) {
+          for (let i = 1; i < totalPages; i++) {
             promises.push(
               adminService.listStudents({ page: i, size: 100 }).then((r) => r.data.content)
             );
