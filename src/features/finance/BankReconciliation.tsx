@@ -11,12 +11,11 @@ import {
   type ReconciliationStatus,
   type BankTransactionType,
 } from '@/services/assets';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const INR = (v: number) => `₹${Number(v).toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`;
@@ -71,9 +70,8 @@ function BankAccountCard({ account, onSelect, isSelected }: {
 
 // ── Transaction Row ───────────────────────────────────────────────────────────
 
-function TxRow({ tx, onAutoMatch, onFlag, onIgnore, onManualMatch }: {
+function TxRow({ tx, onFlag, onIgnore, onManualMatch }: {
   tx: BankTransactionResponseDTO;
-  onAutoMatch?: () => void;
   onFlag: (reason: string) => void;
   onIgnore: () => void;
   onManualMatch: (glEntryId: number) => void;

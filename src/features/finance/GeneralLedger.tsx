@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { format } from "date-fns";
 import {
   BookMarked, Plus, RefreshCw, RotateCcw, ChevronDown, ChevronRight,
-  FileText, Scale, TrendingUp, TrendingDown, AlertCircle, Filter,
+  FileText, Scale, AlertCircle, Filter,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -11,7 +11,7 @@ import {
   type JournalEntryResponseDTO, type JournalLineRequestDTO,
   type JournalEntryStatus, type TrialBalanceRowDTO, type AccountResponseDTO,
 } from "@/services/coa";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {

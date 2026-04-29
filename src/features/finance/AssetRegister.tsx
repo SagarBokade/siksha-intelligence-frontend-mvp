@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import {
-  Layers, Plus, RefreshCw, ChevronDown, ChevronRight, Wrench, Trash2,
-  TrendingDown, PackageCheck, Search, Filter,
+  Layers, Plus, RefreshCw, ChevronDown, ChevronRight, Trash2,
+  TrendingDown, Search,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -43,11 +43,10 @@ const CATEGORIES = ['IT Equipment', 'Lab Equipment', 'Furniture', 'Vehicle', 'Bu
 
 // ── Asset Card ────────────────────────────────────────────────────────────────
 
-function AssetCard({ asset, onDepreciate, onDispose, onRefresh }: {
+function AssetCard({ asset, onDepreciate, onDispose }: {
   asset: AssetResponseDTO;
   onDepreciate: () => void;
   onDispose: () => void;
-  onRefresh: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const m = STATUS_META[asset.status];
@@ -339,7 +338,6 @@ export function AssetRegister() {
                 try { await assetService.dispose(a.id, format(new Date(), 'yyyy-MM-dd'), 'Disposed', 0); toast.success('Asset disposed.'); load(); }
                 catch (err: any) { toast.error(err?.response?.data?.message ?? 'Failed.'); }
               }}
-              onRefresh={load}
             />
           ))}
         </div>

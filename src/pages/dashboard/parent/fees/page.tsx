@@ -122,8 +122,8 @@ export default function FeesPage() {
   
   // Find oldest pending invoice for the "Pay Now" main button
   const oldestInvoice = fees.feeBreakdown
-    .filter(inv => inv.status !== 'PAID' && inv.status !== 'CANCELLED')
-    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
+    .filter((inv: any) => inv.status !== 'PAID' && inv.status !== 'CANCELLED')
+    .sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
 
   return (
     <div className="max-w-[1200px] mx-auto space-y-6 pb-12">
@@ -193,8 +193,8 @@ export default function FeesPage() {
               {hasDue ? (
                 <div className="space-y-4">
                   {fees.feeBreakdown
-                    .filter(item => item.status !== 'PAID')
-                    .map((item, idx) => (
+                    .filter((item: any) => item.status !== 'PAID')
+                    .map((item: any, idx: number) => (
                     <div key={idx} className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0 gap-4">
                       <div className="flex-1">
                         <p className="font-semibold">{item.feeType}</p>
@@ -244,7 +244,7 @@ export default function FeesPage() {
         </div>
         <div className="divide-y h-[400px] overflow-auto">
           {fees.recentPayments.length > 0 ? (
-            fees.recentPayments.map((payment, i) => (
+            fees.recentPayments.map((payment: any, i: number) => (
               <motion.div 
                 initial={{ opacity: 0, x: -10 }} 
                 animate={{ opacity: 1, x: 0 }} 

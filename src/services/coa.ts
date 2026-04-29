@@ -1,5 +1,5 @@
 import { api } from "@/lib/axios";
-import type { PageResponse, Pageable } from "./types/common";
+import type { PageResponse } from "./types/common";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

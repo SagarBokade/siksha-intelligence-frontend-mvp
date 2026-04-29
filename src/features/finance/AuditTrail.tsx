@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
-import { ShieldAlert, RefreshCw, MonitorSmartphone } from "lucide-react";
+import { ShieldAlert, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { financeService } from "@/services/finance";
 

@@ -340,10 +340,6 @@ export function ChartOfAccounts() {
     }
   };
 
-  const totalAssets   = allAccounts.filter(a => a.accountType === "ASSET").length;
-  const totalIncome   = allAccounts.filter(a => a.accountType === "INCOME").length;
-  const totalExpense  = allAccounts.filter(a => a.accountType === "EXPENSE").length;
-
   return (
     <div className="space-y-5">
       {/* Header */}

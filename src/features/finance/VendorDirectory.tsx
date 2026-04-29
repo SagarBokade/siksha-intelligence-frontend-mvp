@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Building2, Plus, RefreshCw, Pencil, Trash2, CheckCircle, XCircle, Filter, Search, Phone, Mail, MapPin, CreditCard } from "lucide-react";
+import { Building2, Plus, RefreshCw, Pencil, Trash2, CheckCircle, Search, Phone, Mail, MapPin, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { vendorService, type VendorResponseDTO, type VendorStatus } from "@/services/procurement";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

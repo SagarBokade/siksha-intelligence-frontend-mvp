@@ -1,17 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
-import { Receipt, Plus, RefreshCw, Layers } from "lucide-react";
+import { Receipt, Plus, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { financeService } from "@/services/finance";
 import { coaService } from "@/services/coa";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 
 const INR = (v: number) => `₹${Number(v).toLocaleString("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`;
 
@@ -19,7 +18,6 @@ export function MiscellaneousReceipts() {
   const [receipts, setReceipts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
   
   // Minimal accounts needed for the dropdown (assuming we'd ideally fetch these from COA)
   const [accounts, setAccounts] = useState<any[]>([]);

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  PiggyBank, Plus, RefreshCw, ChevronDown, ChevronRight,
+  PiggyBank, Plus, RefreshCw,
   Pencil, Trash2, Send, CheckCircle, XCircle, RotateCcw,
   ArrowDownRight, ArrowUpRight, Minus, Filter, X,
   Archive, AlertCircle
@@ -14,7 +14,6 @@ import {
   type BudgetCreateDTO,
   type BudgetLineItemCreateDTO,
   type BudgetStatus,
-  type BudgetApprovalDTO,
 } from "@/services/budget";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -109,11 +108,9 @@ function UtilArc({ pct }: { pct: number }) {
 
 function BudgetDetailPanel({
   budgetId,
-  onClose,
   onRefresh,
 }: {
   budgetId: number;
-  onClose: () => void;
   onRefresh: () => void;
 }) {
   const [detail, setDetail] = useState<BudgetResponseDTO | null>(null);
@@ -158,8 +155,6 @@ function BudgetDetailPanel({
       </div>
     );
   }
-
-  const m = STATUS_META[detail.status];
 
   return (
     <div className="space-y-5">
@@ -483,7 +478,6 @@ function BudgetCard({
   onClick: () => void;
   onDelete: (b: BudgetSummaryDTO) => void;
 }) {
-  const m = STATUS_META[budget.status];
   const capped = Math.min(budget.utilisationPct, 100);
   const barColor = budget.utilisationPct > 100 ? "bg-rose-500" :
                    budget.utilisationPct >= 75 ? "bg-emerald-500" : "bg-blue-500";
@@ -728,7 +722,6 @@ export function BudgetManager() {
                 <CardContent>
                   <BudgetDetailPanel
                     budgetId={selectedId}
-                    onClose={() => setSelectedId(null)}
                     onRefresh={load}
                   />
                 </CardContent>

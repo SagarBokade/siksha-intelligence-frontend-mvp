@@ -1,15 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { format, differenceInDays } from 'date-fns';
 import {
-  Award, Plus, RefreshCw, ChevronDown, ChevronRight, AlertTriangle,
-  CheckCircle, XCircle, Clock, Zap, PlusCircle,
+  Award, Plus, RefreshCw, AlertTriangle,
+  CheckCircle, XCircle, Zap, PlusCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   grantService,
   type GrantResponseDTO,
   type GrantStatus,
-  type GrantUtilizationResponseDTO,
 } from '@/services/assets';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +18,6 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
 
 const INR = (v: number) => `₹${Number(v).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
 

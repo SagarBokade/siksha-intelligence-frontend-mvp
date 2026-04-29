@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { ShoppingCart, Plus, RefreshCw, ChevronDown, ChevronRight, Send, CheckCircle, XCircle, Truck, PackageCheck, Filter } from "lucide-react";
+import { ShoppingCart, Plus, RefreshCw, ChevronDown, ChevronRight, Send, CheckCircle, XCircle, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { poService, vendorService, type PurchaseOrderResponseDTO, type VendorResponseDTO, type POStatus } from "@/services/procurement";
 import { Card, CardContent } from "@/components/ui/card";
