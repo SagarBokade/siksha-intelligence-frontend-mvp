@@ -89,6 +89,7 @@ const TeacherLectureLogsPage = lazy(() => import('@/pages/dashboard/teacher/lect
 const TeacherDisciplinePage = lazy(() => import('@/pages/dashboard/teacher/discipline/page'))
 const TeacherEvaluationPage = lazy(() => import('@/pages/dashboard/teacher/evaluation/page'))
 const TeacherSelfAttendancePage = lazy(() => import('@/pages/dashboard/teacher/self-attendance/page'))
+const TeacherCommunicationPage = lazy(() => import('@/pages/dashboard/teacher/communication/page'))
 
 const InvigilatorRoomsPage = lazy(() => import('@/pages/dashboard/invigilator/attendance/page'))
 const RoomAttendancePage = lazy(() => import('@/pages/dashboard/invigilator/attendance/[roomId]/page'))
@@ -332,6 +333,7 @@ export default function App() {
           <Route path="lecture-logs" element={withRouteSuspense(<TeacherLectureLogsPage />)} />
           <Route path="evaluation" element={withRouteSuspense(<TeacherEvaluationPage />)} />
           <Route path="discipline" element={withRouteSuspense(<TeacherDisciplinePage />)} />
+          <Route path="communication" element={withRouteSuspense(<TeacherCommunicationPage />)} />
           <Route path="*" element={<Navigate to="/dashboard/teacher" replace />} />
         </Route>
 

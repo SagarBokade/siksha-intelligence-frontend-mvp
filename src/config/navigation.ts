@@ -224,6 +224,11 @@ export const TEACHER_NAV_ITEMS: NavItem[] = [
     icon: FileText,
   },
   {
+    label: "Communication",
+    path: "/dashboard/teacher/communication",
+    icon: MessageSquare,
+  },
+  {
     label: "My HR",
     path: "/dashboard/teacher/my-hr",
     icon: Briefcase,

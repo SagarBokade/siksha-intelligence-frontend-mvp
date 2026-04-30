@@ -4,26 +4,38 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/shared/UserAvatar";
-import { useChildStore } from "@/features/parent/stores/useChildStore";
-import { useChatTeachers, useConversation, useSendMessage } from "@/features/messaging/queries/useMessagingQueries";
+import { useTeacherStudents } from "@/features/teacher/queries/useTeacherQueries";
+import { useChatGuardians, useConversation, useSendMessage } from "@/features/messaging/queries/useMessagingQueries";
 import { useAppSelector } from "@/store/hooks";
 
-export default function CommunicationPage() {
-  const { selectedChildId } = useChildStore();
-  const user = useAppSelector((state) => state.auth.user); // Current logged in guardian
+export default function TeacherCommunicationPage() {
+  const user = useAppSelector((state) => state.auth.user); // Current logged in teacher
   
-  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+  const [selectedGuardianId, setSelectedGuardianId] = useState<number | null>(null);
   const [messageText, setMessageText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const studentId = selectedChildId ? Number(selectedChildId) : null;
   const currentUserId = user?.userId ? Number(user.userId) : null;
 
-  const { data: teachers, isLoading: loadingTeachers } = useChatTeachers(studentId);
-  const { data: messages, isLoading: loadingMessages } = useConversation(studentId, selectedTeacherId);
+  const { data: studentsPage, isLoading: loadingStudents } = useTeacherStudents({});
+  const students = studentsPage?.content || [];
+
+  const { data: guardians, isLoading: loadingGuardians } = useChatGuardians(selectedStudentId);
+  const { data: messages, isLoading: loadingMessages } = useConversation(selectedStudentId, selectedGuardianId);
   const { mutate: sendMessage, isPending: isSending } = useSendMessage();
 
-  const selectedTeacher = teachers?.find((t) => t.userId === selectedTeacherId);
+  const selectedStudent = students.find(s => s.id === selectedStudentId);
+  const selectedGuardian = guardians?.find((g) => g.userId === selectedGuardianId);
+
+  // Auto-select first guardian when student is selected
+  useEffect(() => {
+    if (guardians && guardians.length > 0) {
+      setSelectedGuardianId(guardians[0].userId);
+    } else {
+      setSelectedGuardianId(null);
+    }
+  }, [guardians]);
 
   useEffect(() => {
     // Scroll to bottom when messages load
@@ -32,11 +44,11 @@ export default function CommunicationPage() {
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!messageText.trim() || !studentId || !selectedTeacherId) return;
+    if (!messageText.trim() || !selectedStudentId || !selectedGuardianId) return;
 
     sendMessage({
-      studentId,
-      receiverUserId: selectedTeacherId,
+      studentId: selectedStudentId,
+      receiverUserId: selectedGuardianId,
       content: messageText
     }, {
       onSuccess: () => {
@@ -45,44 +57,42 @@ export default function CommunicationPage() {
     });
   };
 
-  if (!selectedChildId) {
-    return <div className="p-6 text-center text-muted-foreground">Select a child to view communications.</div>;
-  }
-
   return (
     <div className="max-w-[1600px] h-[calc(100vh-120px)] mx-auto flex flex-col md:flex-row gap-6 pb-6">
-      {/* Threads Sidebar */}
+      {/* Students Sidebar */}
       <Card className="w-full md:w-80 lg:w-96 flex flex-col h-full border-r-0 md:border-r border-r-border/50 shadow-sm rounded-2xl md:rounded-r-none md:rounded-l-2xl overflow-hidden">
         <div className="p-4 border-b">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-primary" /> Teachers
+              <MessageSquare className="w-5 h-5 text-primary" /> Students
             </h2>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input className="pl-9 bg-muted/50 border-none" placeholder="Search teachers..." />
+            <Input className="pl-9 bg-muted/50 border-none" placeholder="Search students..." />
           </div>
         </div>
         
         <div className="flex-1 overflow-y-auto">
-          {loadingTeachers ? (
-            <div className="p-4 text-center text-muted-foreground text-sm">Loading teachers...</div>
-          ) : teachers?.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground text-sm">No teachers found.</div>
+          {loadingStudents ? (
+            <div className="p-4 text-center text-muted-foreground text-sm">Loading students...</div>
+          ) : students.length === 0 ? (
+            <div className="p-4 text-center text-muted-foreground text-sm">No students found.</div>
           ) : (
-            teachers?.map((teacher) => (
+            students.map((student) => (
               <div 
-                key={teacher.userId} 
-                onClick={() => setSelectedTeacherId(teacher.userId)}
-                className={`p-4 border-b hover:bg-muted/30 cursor-pointer transition-colors flex items-start gap-3 ${selectedTeacherId === teacher.userId ? 'bg-muted/50' : ''}`}
+                key={student.id} 
+                onClick={() => setSelectedStudentId(student.id)}
+                className={`p-4 border-b hover:bg-muted/30 cursor-pointer transition-colors flex items-start gap-3 ${selectedStudentId === student.id ? 'bg-muted/50' : ''}`}
               >
-                <UserAvatar name={teacher.name} className="w-10 h-10 border border-primary/10" />
+                <UserAvatar name={student.fullName} src={student.profileUrl} className="w-10 h-10 border border-primary/10" />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-0.5">
-                    <h4 className="font-semibold text-sm truncate pr-2">{teacher.name}</h4>
+                    <h4 className="font-semibold text-sm truncate pr-2">{student.fullName}</h4>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-1">{teacher.role}</p>
+                  <p className="text-xs text-muted-foreground mb-1">
+                    {student.courseOrClass} {student.section && `- Sec ${student.section}`}
+                  </p>
                 </div>
               </div>
             ))
@@ -92,21 +102,23 @@ export default function CommunicationPage() {
 
       {/* Main Chat Area */}
       <Card className="flex-1 hidden md:flex flex-col h-full shadow-sm rounded-none rounded-r-2xl border-l-0 overflow-hidden">
-        {selectedTeacherId && selectedTeacher ? (
+        {selectedStudentId && selectedStudent ? (
           <>
             <div className="p-4 border-b flex items-center justify-between bg-muted/10">
               <div className="flex items-center gap-3">
-                <UserAvatar name={selectedTeacher.name} className="w-10 h-10 border border-primary/20" />
+                <UserAvatar name={selectedGuardian?.name || "Guardian"} className="w-10 h-10 border border-primary/20" />
                 <div>
-                  <h3 className="font-bold text-foreground">{selectedTeacher.name}</h3>
-                  <p className="text-xs text-muted-foreground">{selectedTeacher.role}</p>
+                  <h3 className="font-bold text-foreground">{selectedGuardian?.name || "Select a Guardian"}</h3>
+                  <p className="text-xs text-muted-foreground">Guardian of {selectedStudent.fullName}</p>
                 </div>
               </div>
             </div>
             
             <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gradient-to-br from-background to-muted/10">
-              {loadingMessages ? (
+              {loadingGuardians || loadingMessages ? (
                  <div className="text-center text-muted-foreground text-sm py-4">Loading messages...</div>
+              ) : !selectedGuardianId ? (
+                 <div className="text-center text-muted-foreground text-sm py-4">No guardian linked to this student.</div>
               ) : messages?.length === 0 ? (
                  <div className="text-center text-muted-foreground text-sm py-4">No messages yet. Say hi!</div>
               ) : (
@@ -114,7 +126,7 @@ export default function CommunicationPage() {
                   const isMine = msg.senderUserId === currentUserId;
                   return (
                     <div key={msg.id} className={`flex items-start gap-3 max-w-[80%] ${isMine ? 'ml-auto flex-row-reverse' : ''}`}>
-                      <UserAvatar name={isMine ? "Me" : selectedTeacher.name} className={`w-8 h-8 shrink-0 ${isMine ? 'bg-primary/20 text-primary' : ''}`} />
+                      <UserAvatar name={isMine ? "Me" : selectedGuardian?.name || "Guardian"} className={`w-8 h-8 shrink-0 ${isMine ? 'bg-primary/20 text-primary' : ''}`} />
                       <div className={`p-3 rounded-2xl text-sm ${isMine ? 'bg-primary text-primary-foreground rounded-tr-sm' : 'bg-muted text-foreground rounded-tl-sm'}`}>
                         <p className="whitespace-pre-wrap">{msg.content}</p>
                         <span className={`text-[10px] mt-1 block ${isMine ? 'text-primary-foreground/70 text-right' : 'text-muted-foreground'}`}>
@@ -134,8 +146,9 @@ export default function CommunicationPage() {
                 onChange={(e) => setMessageText(e.target.value)}
                 placeholder="Type a message..." 
                 className="bg-muted/30" 
+                disabled={!selectedGuardianId}
               />
-              <Button type="submit" disabled={!messageText.trim() || isSending}>
+              <Button type="submit" disabled={!messageText.trim() || isSending || !selectedGuardianId}>
                 <Send className="w-4 h-4" />
               </Button>
             </form>
@@ -143,7 +156,7 @@ export default function CommunicationPage() {
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground flex-col">
             <MessageSquare className="w-12 h-12 mb-4 opacity-20" />
-            <p>Select a teacher to start messaging.</p>
+            <p>Select a student to message their guardian.</p>
           </div>
         )}
       </Card>
