@@ -187,6 +187,11 @@ export const parentService = {
         }))
       }
     };
+  },
+
+  /** POST /guardian/dashboard/attendance/leave/{childId} */
+  async applyForLeave(childId: string, payload: { leaveType: string; fromDate: string; toDate: string; reason: string; halfDay?: boolean }) {
+    return await api.post(`/guardian/dashboard/attendance/leave/${childId}`, payload);
   }
 };
 
