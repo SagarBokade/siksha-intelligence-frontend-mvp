@@ -175,6 +175,16 @@ export const financeService = {
     return api.post<PaymentResponseDTO>("/auth/finance/payments/record-offline", data);
   },
 
+  getPaymentsByInvoiceId(invoiceId: number) {
+    return api.get<PaymentResponseDTO[]>(`/auth/finance/payments/invoice/${invoiceId}`);
+  },
+
+  getPaymentReceipt(paymentId: number) {
+    return api.get<Blob>(`/auth/finance/payments/${paymentId}/receipt`, {
+      responseType: "blob",
+    });
+  },
+
   // ── Late Fee Rules ───────────────────────────────────────────────
   /** GET /auth/finance/late-fee-rules */
   getAllLateFeeRules() {

@@ -121,7 +121,9 @@ export function FinanceDashboard({ summary, invoices, payments, loading }: Finan
   // ── Computed Analytics ──────────────────────────────────────────────────────
 
   const totalBilled = useMemo(() =>
-    invoices.reduce((acc, inv) => acc + Number(inv.totalAmount), 0), [invoices]
+    invoices
+      .filter((inv) => inv.status !== "CANCELLED")
+      .reduce((acc, inv) => acc + Number(inv.totalAmount), 0), [invoices]
   );
 
   const collectionRate = useMemo(() =>
@@ -135,7 +137,7 @@ export function FinanceDashboard({ summary, invoices, payments, loading }: Finan
 
     return Object.entries(invoicesByMonth).map(([month, invs]) => ({
       month,
-      billed: invs.reduce((a, i) => a + Number(i.totalAmount), 0),
+      billed: invs.filter((i) => i.status !== "CANCELLED").reduce((a, i) => a + Number(i.totalAmount), 0),
       collected: (paymentsByMonth[month] ?? []).reduce((a: number, p: any) => a + Number(p.amountPaid), 0),
     }));
   }, [invoices, payments]);
