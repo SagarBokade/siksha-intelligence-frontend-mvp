@@ -244,12 +244,11 @@ api.interceptors.response.use(
     const status = error.response?.status
     const originalConfig = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
 
-    // Handle 403 Forbidden - user is authenticated but not authorized
-    if (status === 403) {
-      // Navigate to 403 page - page uses navigate(-1) to go back safely
-      authHandlers?.navigateTo403?.()
-      return Promise.reject(error)
-    }
+    // 403 global redirect disabled — let individual callers handle authorization errors
+    // if (status === 403) {
+    //   authHandlers?.navigateTo403?.()
+    //   return Promise.reject(error)
+    // }
 
     if (!originalConfig || status !== 401) {
       return Promise.reject(error)
