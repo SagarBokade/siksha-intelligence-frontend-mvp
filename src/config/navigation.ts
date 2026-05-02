@@ -31,6 +31,7 @@ import {
   UserCheck,
   Bus,
   MessageSquare,
+  MessageCircle,
   ClipboardSignature,
   HeartPulse,
   Radio,
@@ -230,7 +231,7 @@ export const TEACHER_NAV_ITEMS: NavItem[] = [
   {
     label: "Communication",
     path: "/dashboard/teacher/communication",
-    icon: MessageSquare,
+    icon: MessageCircle,
   },
   {
     label: "My HR",
@@ -275,7 +276,7 @@ export const PARENT_NAV_ITEMS: NavItem[] = [
   { label: "Attendance", path: "/dashboard/parent/attendance", icon: CalendarCheck },
   { label: "Homework", path: "/dashboard/parent/homework", icon: FileText },
   { label: "Fees", path: "/dashboard/parent/fees", icon: Receipt },
-  { label: "Communication", path: "/dashboard/parent/communication", icon: MessageSquare },
+  { label: "Communication", path: "/dashboard/parent/communication", icon: MessageCircle },
   { label: "Calendar", path: "/dashboard/parent/calendar", icon: CalendarDays },
   { label: "Transport", path: "/dashboard/parent/transport", icon: Bus },
   { label: "Health", path: "/dashboard/parent/health", icon: HeartPulse },

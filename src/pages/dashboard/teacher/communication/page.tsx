@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, Search, Edit, Send } from "lucide-react";
+import { MessageCircle, Search, Edit, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/shared/UserAvatar";
 import { useTeacherStudents } from "@/features/teacher/queries/useTeacherQueries";
-import { useChatGuardians, useConversation, useSendMessage } from "@/features/messaging/queries/useMessagingQueries";
+import { useChatGuardians, useConversation, useSendMessage, useMarkAsRead } from "@/features/messaging/queries/useMessagingQueries";
 import { useAppSelector } from "@/store/hooks";
 
 export default function TeacherCommunicationPage() {
@@ -24,8 +24,10 @@ export default function TeacherCommunicationPage() {
   const { data: guardians, isLoading: loadingGuardians } = useChatGuardians(selectedStudentId);
   const { data: messages, isLoading: loadingMessages } = useConversation(selectedStudentId, selectedGuardianId);
   const { mutate: sendMessage, isPending: isSending } = useSendMessage();
+  const { mutate: markAsRead } = useMarkAsRead();
+  const [lastMarkedId, setLastMarkedId] = useState<string | null>(null);
 
-  const selectedStudent = students.find(s => s.id === selectedStudentId);
+  const selectedStudent = students.find(s => s.studentId === selectedStudentId);
   const selectedGuardian = guardians?.find((g) => g.userId === selectedGuardianId);
 
   // Auto-select first guardian when student is selected
@@ -38,9 +40,16 @@ export default function TeacherCommunicationPage() {
   }, [guardians]);
 
   useEffect(() => {
+    // Mark as read when conversation is opened or new messages arrive
+    if (selectedStudentId && selectedGuardianId && messages && messages.length > 0) {
+      const hasUnread = messages.some(m => !m.read && m.receiverUserId === currentUserId);
+      if (hasUnread) {
+        markAsRead({ studentId: selectedStudentId, otherUserId: selectedGuardianId });
+      }
+    }
     // Scroll to bottom when messages load
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, selectedStudentId, selectedGuardianId, currentUserId, markAsRead]);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +73,7 @@ export default function TeacherCommunicationPage() {
         <div className="p-4 border-b">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-primary" /> Students
+              <MessageCircle className="w-5 h-5 text-primary" /> Students
             </h2>
           </div>
           <div className="relative">
@@ -81,17 +90,17 @@ export default function TeacherCommunicationPage() {
           ) : (
             students.map((student) => (
               <div 
-                key={student.id} 
-                onClick={() => setSelectedStudentId(student.id)}
-                className={`p-4 border-b hover:bg-muted/30 cursor-pointer transition-colors flex items-start gap-3 ${selectedStudentId === student.id ? 'bg-muted/50' : ''}`}
+                key={student.studentId || student.uuid} 
+                onClick={() => setSelectedStudentId(student.studentId!)}
+                className={`p-4 border-b hover:bg-muted/30 cursor-pointer transition-colors flex items-start gap-3 ${selectedStudentId === student.studentId ? 'bg-muted/50' : ''}`}
               >
-                <UserAvatar name={student.fullName} src={student.profileUrl} className="w-10 h-10 border border-primary/10" />
+                <UserAvatar name={`${student.firstName} ${student.lastName}`} src={student.profileUrl} className="w-10 h-10 border border-primary/10" />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-0.5">
-                    <h4 className="font-semibold text-sm truncate pr-2">{student.fullName}</h4>
+                    <h4 className="font-semibold text-sm truncate pr-2">{student.firstName} {student.lastName}</h4>
                   </div>
                   <p className="text-xs text-muted-foreground mb-1">
-                    {student.courseOrClass} {student.section && `- Sec ${student.section}`}
+                    {student.className} {student.sectionName && `- Sec ${student.sectionName}`}
                   </p>
                 </div>
               </div>
@@ -109,7 +118,7 @@ export default function TeacherCommunicationPage() {
                 <UserAvatar name={selectedGuardian?.name || "Guardian"} className="w-10 h-10 border border-primary/20" />
                 <div>
                   <h3 className="font-bold text-foreground">{selectedGuardian?.name || "Select a Guardian"}</h3>
-                  <p className="text-xs text-muted-foreground">Guardian of {selectedStudent.fullName}</p>
+                  <p className="text-xs text-muted-foreground">Guardian of {selectedStudent.firstName} {selectedStudent.lastName}</p>
                 </div>
               </div>
             </div>
@@ -155,7 +164,7 @@ export default function TeacherCommunicationPage() {
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground flex-col">
-            <MessageSquare className="w-12 h-12 mb-4 opacity-20" />
+            <MessageCircle className="w-12 h-12 mb-4 opacity-20" />
             <p>Select a student to message their guardian.</p>
           </div>
         )}

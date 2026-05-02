@@ -57,3 +57,16 @@ export function useSendMessage() {
     }
   });
 }
+
+export function useMarkAsRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ studentId, otherUserId }: { studentId: number, otherUserId: number }) => {
+      await messagingService.markAsRead(studentId, otherUserId);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: messagingKeys.teachers(variables.studentId) });
+      queryClient.invalidateQueries({ queryKey: messagingKeys.guardians(variables.studentId) });
+    }
+  });
+}

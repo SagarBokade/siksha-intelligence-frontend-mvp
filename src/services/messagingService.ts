@@ -15,6 +15,7 @@ export interface ChatContact {
   name: string;
   role: string;
   avatarUrl?: string;
+  unreadCount?: number;
 }
 
 export const messagingService = {
@@ -51,5 +52,9 @@ export const messagingService = {
       ]
     }));
     return { data: res.data as ChatContact[] };
+  },
+
+  async markAsRead(studentId: number, otherUserId: number) {
+    return await api.post(`/messaging/student/${studentId}/read/${otherUserId}`);
   }
 };

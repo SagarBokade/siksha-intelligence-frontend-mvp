@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, Search, Edit, Send } from "lucide-react";
+import { MessageCircle, Search, Edit, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/shared/UserAvatar";
 import { useChildStore } from "@/features/parent/stores/useChildStore";
-import { useChatTeachers, useConversation, useSendMessage } from "@/features/messaging/queries/useMessagingQueries";
+import { useChatTeachers, useConversation, useSendMessage, useMarkAsRead } from "@/features/messaging/queries/useMessagingQueries";
 import { useAppSelector } from "@/store/hooks";
 
 export default function CommunicationPage() {
@@ -22,13 +22,28 @@ export default function CommunicationPage() {
   const { data: teachers, isLoading: loadingTeachers } = useChatTeachers(studentId);
   const { data: messages, isLoading: loadingMessages } = useConversation(studentId, selectedTeacherId);
   const { mutate: sendMessage, isPending: isSending } = useSendMessage();
+  const { mutate: markAsRead } = useMarkAsRead();
 
   const selectedTeacher = teachers?.find((t) => t.userId === selectedTeacherId);
 
   useEffect(() => {
+    // Mark as read when conversation is opened or new messages arrive
+    if (studentId && selectedTeacherId && messages && messages.length > 0) {
+      const hasUnread = messages.some(m => !m.read && m.receiverUserId === currentUserId);
+      if (hasUnread) {
+        markAsRead({ studentId, otherUserId: selectedTeacherId });
+      }
+    }
     // Scroll to bottom when messages load
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, studentId, selectedTeacherId, currentUserId, markAsRead]);
+
+  // Auto-select first teacher
+  useEffect(() => {
+    if (teachers && teachers.length > 0 && !selectedTeacherId) {
+      setSelectedTeacherId(teachers[0].userId);
+    }
+  }, [teachers, selectedTeacherId]);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +71,7 @@ export default function CommunicationPage() {
         <div className="p-4 border-b">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-primary" /> Teachers
+              <MessageCircle className="w-5 h-5 text-primary" /> Teachers
             </h2>
           </div>
           <div className="relative">
@@ -81,6 +96,11 @@ export default function CommunicationPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-0.5">
                     <h4 className="font-semibold text-sm truncate pr-2">{teacher.name}</h4>
+                    {teacher.unreadCount && teacher.unreadCount > 0 ? (
+                      <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        {teacher.unreadCount}
+                      </span>
+                    ) : null}
                   </div>
                   <p className="text-xs text-muted-foreground mb-1">{teacher.role}</p>
                 </div>
@@ -142,7 +162,7 @@ export default function CommunicationPage() {
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground flex-col">
-            <MessageSquare className="w-12 h-12 mb-4 opacity-20" />
+            <MessageCircle className="w-12 h-12 mb-4 opacity-20" />
             <p>Select a teacher to start messaging.</p>
           </div>
         )}
